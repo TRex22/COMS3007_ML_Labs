@@ -1,0 +1,11 @@
+{
+  "name": "lab1_coms3007",
+  "version": "1.0.0",
+  "description": "lab1_perceptron",
+  "main": "Lab1.js",
+  "scripts": {
+    "test": "node Lab1.js"
+  },
+  "author": "Jason Chalom",
+  "license": "MIT"
+}
