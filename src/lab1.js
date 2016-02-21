@@ -1,6 +1,9 @@
 //Jason Chalom Feb 15 2016
 'use strict';
 
+// dependencies 
+var FunctionGraph = require("function-graph");
+
 console.log('COMS3007: Machine LEarning');
 console.log('Lab 1 Number 1: perceptron');
 
@@ -30,18 +33,26 @@ function lab1(){
 function lab1_2(){
 	/*trainingSet: [[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0]],
 	N: 4,*/
-	var rndWeights = rndWeights(-1, 1);
-	var mInputes = {		
+	var m = 3;
+	var weights = rndWeights(m, -1, 1);
+	var mInputs = {		
 		X: [[0, 0, -1], [0, 1, -1], [1, 0, -1], [1, 1, -1]],
 		T: [[1], [1], [1], [0]],
-		W: rndWeights,
+		W: weights,
 		n: 0.25, //learning rate
-		maxCount: 1000
+		m: m,
+		maxCount: 100
 	};
 
-
+	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
+	console.log('Raw output:\n%s', JSON.stringify(PerceptLearn));
 } 
-
-function rndWeights(from, to){
-
+ 
+function rndWeights(m, low, high){
+	var weights = [];
+	for (var i=0; i<m; i++){ 
+		var weight = Math.random() * (high - low) + low;		
+		weights.push(weight);
+	}
+	return weights;
 }

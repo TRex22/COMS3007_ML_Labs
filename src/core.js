@@ -8,7 +8,7 @@
 
 var exposed = {
   percept: percept,
-  trainingDay: trainingDay
+  PerceptLearn: PerceptLearn
 };
 module.exports = exposed;
 
@@ -20,18 +20,37 @@ module.exports = exposed;
 
 function PerceptLearn(mInputs){
      var count = 0;
-     while (count < mInputs.maxCount){ //stopping condition
-        for (var k=0;k<mInputs.N;k++){
-            var y=percept(
-            {   weights: W,
-                X: X[k]
-            });
-            var m =mInputs.W.length;
-            for (var i=0;i<m+1;i++){ //check m+1
-                W[i] = W[i] + mInputs.n * (T[k] - y) * X[k][i];
+     var test = false;
+     var yOut = [];
+     var oldT = [];
+
+     while (count < mInputs.maxCount && !test){ //stopping condition
+        for (var k=0;k<mInputs.X.length;k++){
+            var y = percept(
+                {   weights: mInputs.W,
+                    X: mInputs.X[k]
+                }); 
+
+            yOut.push([y]);
+
+            if (y === mInputs.T[k]){
+              test = true;
+            }
+            else{
+              test = false;
+            }
+
+            if(!test){
+              var m =mInputs.W.length;
+              for (var i=0;i<m;i++){ //check m+1
+                  mInputs.W[i] = mInputs.W[i] + mInputs.n * (mInputs.T[k] - y) * mInputs.X[k][i];
+              }
             }
         }
+        mInputs.y = yOut;
+        count++;
      }
+     return mInputs;
 }
 
 function percept(mInputs){
