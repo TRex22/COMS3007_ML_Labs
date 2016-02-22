@@ -1,9 +1,6 @@
 //Jason Chalom Feb 15 2016
 'use strict';
 
-// dependencies 
-var FunctionGraph = require("function-graph");
-
 console.log('COMS3007: Machine LEarning');
 console.log('Lab 1 Number 1: perceptron');
 
@@ -45,7 +42,8 @@ function lab1_2(){
 	};
 
 	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
-	console.log('Raw output:\n%s', JSON.stringify(PerceptLearn));
+	console.log('Raw output:\n%s\n\n', JSON.stringify(PerceptLearn));
+	drawGraph();
 } 
  
 function rndWeights(m, low, high){
@@ -55,4 +53,31 @@ function rndWeights(m, low, high){
 		weights.push(weight);
 	}
 	return weights;
+}
+
+function drawGraph(){
+	console.log('Graph of Weights');
+	console.log('=======================================================================================================');
+	// dependencies 
+	var FunctionGraph = require("function-graph");
+	
+	// create a new function graph 
+	var graph = new FunctionGraph ({
+	    height: 30
+	  , width: 60
+	  , marks: {
+	        hAxis: '─'
+	      , vAxis: '│'
+	      , center: '┼'
+	      , point: '•'
+	  }
+	});
+	 
+	// for [-25, 48) add points 
+	for (var i = -25; i < 48; i += 0.001) {
+	    graph.addPoint(i * 2, 5);
+	}
+	
+	// output graph 
+	console.log(graph.toString());
 }
