@@ -43,7 +43,7 @@ function lab1_2(){
 
 	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
 	console.log('Raw output:\n%s\n\n', JSON.stringify(PerceptLearn));
-	drawGraph();
+	drawGraph(PerceptLearn);
 } 
  
 function rndWeights(m, low, high){
@@ -55,9 +55,9 @@ function rndWeights(m, low, high){
 	return weights;
 }
 
-function drawGraph(){
+function drawGraph(mInputs){
 	console.log('Graph of Weights');
-	console.log('=======================================================================================================');
+	console.log('');
 	// dependencies 
 	var FunctionGraph = require("function-graph");
 	
@@ -72,10 +72,9 @@ function drawGraph(){
 	      , point: '•'
 	  }
 	});
-	 
-	// for [-25, 48) add points 
-	for (var i = -25; i < 48; i += 0.001) {
-	    graph.addPoint(i * 2, 5);
+
+	for (var i = 0; i < mInputs.W.length; i++) {
+	    graph.addPoint(mInputs.W[i]);
 	}
 	
 	// output graph 
