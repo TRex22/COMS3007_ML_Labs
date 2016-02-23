@@ -6,12 +6,17 @@
   console.log(index + ': ' + val);
 });*/
 
-console.log('COMS3007: Machine LEarning');
-console.log('Lab 1 Number 1: perceptron');
+console.log('COMS3007: Machine LEarning Perceptron');
+console.log('Jason Chalom 2016 @TRex22\n\n');
+labs();
 
-lab1();
-console.log('Lab 1 Number 2: perceptron learning algorithm');
-lab1_2();
+function labs(){
+	console.log('Lab 1 Number 1: perceptron');
+
+	lab1();
+	console.log('Lab 1 Number 2: perceptron learning algorithm');
+	lab1_2();
+}
 
 function lab1(){
 	var mInputs = {
@@ -20,7 +25,9 @@ function lab1(){
 	};
 
 	var percept = require('./core.js').percept(mInputs);
-	console.log('Example 0: %s', percept);
+	if (percept === 0){
+		console.log('Example 0: %s SUCCESS!', percept);
+	}
 
 	//example 1
 	mInputs = {
@@ -29,7 +36,11 @@ function lab1(){
 	};
 
 	percept = require('./core.js').percept(mInputs);
-	console.log('Example 1: %s', percept);
+	if (percept === 1){
+		console.log('Example 1: %s SUCCESS!', percept);
+	}
+
+	console.log('\n');
 }
 
 function lab1_2(){
@@ -43,7 +54,7 @@ function lab1_2(){
 		W: weights,
 		n: 0.25, //learning rate
 		m: m,
-		maxCount: 100
+		maxCount: 1000
 	};
 
 	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
@@ -69,12 +80,12 @@ function drawGraph(mInputs){
 	// create a new function graph 
 	var graph = new FunctionGraph ({
 	    height: 30
-	  , width: 100
+	  , width: 60
 	  , marks: {
 	        hAxis: '─'
 	      , vAxis: '│'
 	      , center: '┼'
-	      , point: '•'
+	      , point: 'x'
 	  }
 	});
 	
@@ -86,10 +97,11 @@ function drawGraph(mInputs){
 	}
 	points.push(mInputs.W[mInputs.W.length]);
 
-	for (var i = 0; i < points.length; i++) {
-		graph.addPoint(mInputs.W[i], mInputs.y[i]);
+	for (var i = 0; i < mInputs.W.length; i++) {
+		console.log("points: (%s,%s)", mInputs.W[i], mInputs.y[i]);
+		graph.addPoint(mInputs.W[i]*30, mInputs.y[i]);
 	}
 	
 	// output graph 
-	console.log(graph.toString());
+	console.log('\n'+graph.toString());
 }
