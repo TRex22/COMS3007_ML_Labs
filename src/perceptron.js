@@ -1,6 +1,11 @@
 //Jason Chalom Feb 15 2016
 'use strict';
 
+// print process.argv
+/*process.argv.forEach(function (val, index, array) {
+  console.log(index + ': ' + val);
+});*/
+
 console.log('COMS3007: Machine LEarning');
 console.log('Lab 1 Number 1: perceptron');
 
@@ -64,7 +69,7 @@ function drawGraph(mInputs){
 	// create a new function graph 
 	var graph = new FunctionGraph ({
 	    height: 30
-	  , width: 60
+	  , width: 100
 	  , marks: {
 	        hAxis: '─'
 	      , vAxis: '│'
@@ -72,9 +77,17 @@ function drawGraph(mInputs){
 	      , point: '•'
 	  }
 	});
+	
+	//w1x1+w2x2-w3=0
+	
+	var points = [];
+	for (var i = 0; i < mInputs.W.length-1; i++) {
+		points.push(mInputs.W[i]*mInputs.y[i]);
+	}
+	points.push(mInputs.W[mInputs.W.length]);
 
-	for (var i = 0; i < mInputs.W.length; i++) {
-	    graph.addPoint(mInputs.W[i]);
+	for (var i = 0; i < points.length; i++) {
+		graph.addPoint(mInputs.W[i], mInputs.y[i]);
 	}
 	
 	// output graph 

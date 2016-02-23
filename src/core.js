@@ -1,11 +1,6 @@
 //Jason Chalom Feb 15 2016
 'use strict';
 
-// print process.argv
-/*process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
-});*/
-
 var exposed = {
   percept: percept,
   PerceptLearn: PerceptLearn
@@ -38,13 +33,12 @@ function PerceptLearn(mInputs){
             for (var i=0;i<m;i++){ //check m+1
                 mInputs.W[i] = mInputs.W[i] + mInputs.n * (mInputs.T[k] - y) * mInputs.X[k][i];
             }
-            
         }
         
         count++;
-        mInputs.y = yOut;
+        mInputs.y = yOut
+        yOut = [];
         oldInputs = mInputs;
-        console.log('old: '+JSON.stringify(oldInputs.T));
         continue_ = findTermination(mInputs, oldInputs, count);
      }
      mInputs.count = count;
@@ -78,30 +72,18 @@ function findTermination(mInputs, oldInputs, count){
     if (mInputs.y){
         //error
         var error = 0;
+        var errorCount = 0;
         for (var i=0; i<mInputs.y.length;i++){
             error += Math.abs(mInputs.T[i] - mInputs.y[i]);
+            if(error>0){
+                errorCount++;
+            }
         }
-        console.log('error: '+error);
         
-        /*if (error > 10/100){
+        if (error == 0 || (errorCount/mInputs.y.length) <= 10/100){
             return false;
-        }*/
+        }
     }
-    
-    /*if (oldInputs){
-        var test = false;
-        for (var i=0; i<mInputs.W.length; i++){
-            if (oldInputs.W[i] !== mInputs.W[i]){
-                test = false;
-            }
-            else if (oldInputs.W[i] === mInputs.W[i]){
-                test = true;
-            }
-        }
-        if (test){
-            return false;
-        }
-    }*/
     
     return true;
 }
