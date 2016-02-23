@@ -1,6 +1,18 @@
 //Jason Chalom Feb 15 2016
 'use strict';
 
+// dependencies 
+var FunctionGraph = require("function-graph");
+var fs = require("fs");
+var hactarjs = require("hactarjs");
+
+var exposed = {
+  rndWeights: rndWeights,
+  drawGraph: drawGraph,
+  processDataSet: processDataSet
+};
+module.exports = exposed;
+
 // print process.argv
 /*process.argv.forEach(function (val, index, array) {
   console.log(index + ': ' + val);
@@ -8,46 +20,15 @@
 
 console.log('COMS3007: Machine LEarning Perceptron');
 console.log('Jason Chalom 2016 @TRex22\n\n');
-labs();
 
-function labs(){
-	console.log('Lab 1 Number 1: perceptron');
+function processDataSet(){
+	//read dataset
+	//calc m
+	//calc weights
+	//do ends
 
-	lab1();
-	console.log('Lab 1 Number 2: perceptron learning algorithm');
-	lab1_2();
-}
-
-function lab1(){
-	var mInputs = {
-	    weights: JSON.parse('[2, -1, 1]'),
-	    X: JSON.parse('[1.5, 2.5, -1]')
-	};
-
-	var percept = require('./core.js').percept(mInputs);
-	if (percept === 0){
-		console.log('Example 0: %s SUCCESS!', percept);
-	}
-
-	//example 1
-	mInputs = {
-	    weights : JSON.parse('[2, -3, 1]'),
-	    X : JSON.parse('[3, 1, -1]')
-	};
-
-	percept = require('./core.js').percept(mInputs);
-	if (percept === 1){
-		console.log('Example 1: %s SUCCESS!', percept);
-	}
-
-	console.log('\n');
-}
-
-function lab1_2(){
-	/*trainingSet: [[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0]],
-	N: 4,*/
 	var m = 3;
-	var weights = rndWeights(m, -1, 1);
+	var weights = perceptron.rndWeights(m, -1, 1);
 	var mInputs = {		
 		X: [[0, 0, -1], [0, 1, -1], [1, 0, -1], [1, 1, -1]],
 		T: [[1], [1], [1], [0]],
@@ -59,9 +40,9 @@ function lab1_2(){
 
 	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
 	console.log('Raw output:\n%s\n\n', JSON.stringify(PerceptLearn));
-	drawGraph(PerceptLearn);
+	perceptron.drawGraph(PerceptLearn);
 } 
- 
+
 function rndWeights(m, low, high){
 	var weights = [];
 	for (var i=0; i<m; i++){ 
@@ -74,9 +55,7 @@ function rndWeights(m, low, high){
 function drawGraph(mInputs){
 	console.log('Graph of Weights');
 	console.log('');
-	// dependencies 
-	var FunctionGraph = require("function-graph");
-	
+		
 	// create a new function graph 
 	var graph = new FunctionGraph ({
 	    height: 30
@@ -85,21 +64,22 @@ function drawGraph(mInputs){
 	        hAxis: '─'
 	      , vAxis: '│'
 	      , center: '┼'
-	      , point: 'x'
+	      , point: '•'
 	  }
 	});
 	
 	//w1x1+w2x2-w3=0
 	
-	var points = [];
-	for (var i = 0; i < mInputs.W.length-1; i++) {
-		points.push(mInputs.W[i]*mInputs.y[i]);
+	for (var j = 0; j < mInputs.X.length; j++) {
+		for (var i = 0; i < mInputs.W.length; i++) {
+			console.log("points: (%s,%s)", mInputs.W[i], mInputs.X[j][i]);
+			graph.addPoint(mInputs.W[i]*10, mInputs.X[j][i]*10);
+		}
 	}
-	points.push(mInputs.W[mInputs.W.length]);
 
-	for (var i = 0; i < mInputs.W.length; i++) {
-		console.log("points: (%s,%s)", mInputs.W[i], mInputs.y[i]);
-		graph.addPoint(mInputs.W[i]*30, mInputs.y[i]);
+	//input data
+	for (var i = 0; i < mInputs.X.length; i++) {
+		graph.addPoint(mInputs.X[i][0], mInputs.X[i][1], "x");
 	}
 	
 	// output graph 

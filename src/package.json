@@ -4,11 +4,12 @@
   "description": "lab1_perceptron",
   "main": "Lab1.js",
   "scripts": {
-    "test": "node Lab1.js"
+    "test": "node test.js"
   },
   "author": "Jason Chalom",
   "license": "MIT",
   "dependencies": {
-    "function-graph": "^0.1.2"
+    "function-graph": "^0.1.2",
+    "hactarjs": "0.0.1"
   }
 }
