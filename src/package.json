@@ -9,7 +9,7 @@
   "author": "Jason Chalom",
   "license": "MIT",
   "dependencies": {
-    "function-graph": "^0.1.2",
+    "cli-graph": "^3.2.1",
     "hactarjs": "0.0.1"
   }
 }

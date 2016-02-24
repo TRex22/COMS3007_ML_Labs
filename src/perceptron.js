@@ -2,7 +2,7 @@
 'use strict';
 
 // dependencies 
-var FunctionGraph = require("function-graph");
+var CliGraph = require("cli-graph");
 var fs = require("fs");
 var hactarjs = require("hactarjs");
 
@@ -57,7 +57,7 @@ function drawGraph(mInputs){
 	console.log('');
 		
 	// create a new function graph 
-	var graph = new FunctionGraph ({
+	var graph = new CliGraph({
 	    height: 30
 	  , width: 60
 	  , marks: {
@@ -68,18 +68,15 @@ function drawGraph(mInputs){
 	  }
 	});
 	
+	//input data
+	for (var i = 0; i < mInputs.X.length; i++) {
+		graph.addPoint(mInputs.X[i][0]*10, mInputs.X[i][1]*10, "x");
+	}
+	
 	//w1x1+w2x2-w3=0
 	
 	for (var j = 0; j < mInputs.X.length; j++) {
-		for (var i = 0; i < mInputs.W.length; i++) {
-			console.log("points: (%s,%s)", mInputs.W[i], mInputs.X[j][i]);
-			graph.addPoint(mInputs.W[i]*10, mInputs.X[j][i]*10);
-		}
-	}
-
-	//input data
-	for (var i = 0; i < mInputs.X.length; i++) {
-		graph.addPoint(mInputs.X[i][0], mInputs.X[i][1], "x");
+		graph.addPoint(mInputs.W[0]*mInputs.X[j][0]*10, mInputs.W[0]*mInputs.X[j][1]*10);
 	}
 	
 	// output graph 
