@@ -11,6 +11,8 @@ function labs(){
 	lab1();
 	console.log('Lab 1 Number 2: perceptron learning algorithm');
 	lab1_2();
+	console.log('Lab 1 Number 4: perceptron learning algorithm');
+	lab_1_4()
 }
 
 function lab1(){
@@ -56,3 +58,22 @@ function lab1_2(){
 	console.log('Raw output:\n%s\n\n', JSON.stringify(PerceptLearn));
 	perceptron.drawGraph(PerceptLearn);
 } 
+
+function lab_1_4(){
+	/*{(0, 0, 0), (0, 1, 1), (1, 0, 1), (1, 1, 0)}*/
+	
+	var m = 3;
+	var weights = perceptron.rndWeights(m, -1, 1);
+	var mInputs = {		
+		X: [[0, 0, -1], [0, 1, -1], [1, 0, -1], [1, 1, -1]],
+		T: [[0], [1], [1], [0]],
+		W: weights,
+		n: 0.25, //learning rate
+		m: m,
+		maxCount: 10000
+	};
+
+	var PerceptLearn = require('./core.js').PerceptLearn(mInputs);
+	console.log('Raw output:\n%s\n\n', JSON.stringify(PerceptLearn));
+	perceptron.drawGraph(PerceptLearn);
+}

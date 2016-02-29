@@ -75,8 +75,10 @@ function drawGraph(mInputs){
 	
 	//w1x1+w2x2-w3=0
 	
-	for (var j = 0; j < mInputs.X.length; j++) {
-		graph.addPoint(mInputs.W[0]*mInputs.X[j][0]*10, mInputs.W[0]*mInputs.X[j][1]*10);
+	for (var j = 0; j < 25; j++) {
+		//graph.addPoint(mInputs.W[j]*mInputs.y[j]*10, mInputs.W[j]*mInputs.y[j]*10);
+		//plot from -1 ; 10 or something for each x point
+		graph.addPoint(mInputs.W[0]+j + mInputs.W[1]+j- mInputs.W[2], j);
 	}
 	
 	// output graph 
