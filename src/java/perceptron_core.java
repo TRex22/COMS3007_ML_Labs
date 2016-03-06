@@ -6,21 +6,33 @@ import java.util.Random;
 
 class perceptron_core
 {
-	public double[] PerceptLearn(double[][] X, double[] T, double[] W, GetPropertyValues properties){
+	public static double[] PerceptLearn(double[][] X, double[] T, double[] W, GetPropertyValues properties){
 		/*while (stopping condition not satisfied)
 	    for (k = 0; k < N; k++)
 	        y = percept(W;X[k])
 	        for (i = 0; i < m + 1; i++)
 	            W[i] = W[i] + n * (T[k] - y) * X[k][i]*/
 
-	    double[] y = [];
+	    double[] y = {};
 	    int count = 0;
-	    while (findTermination(double[] y, T, count, properties)){
+	    int N = X.length;
+	    boolean continue_ = findTermination(y, T, count, properties);
+	    while (continue_){
+	    	for (int i = 0; i < N; i++){
+	    		double currentY = percept(W, X[i]);
+	    		int m = W.length;
+	    		for (int j = 0; j < m+1; j++){
+	    			W[j] = W[j] + properties.LearningRate * (T[i] - currentY) * X[i][j];
+	    		}
+	    	}
 
+	    	count++;
+	    	continue_ = findTermination(y, T, count, properties);
 	    }
+	    return W;
 	}
 
-	public int percept(double[] weights, double[][] X){
+	public static int percept(double[] weights, double[] X){
 		//if w1X1+w2X2...-$ >0 return 1
 	    //if W1X1+W2X2...-$ <=0 return 0
 	    //using augemented matrix
@@ -38,7 +50,7 @@ class perceptron_core
 	}
 
 	//find the termination conditions
-	public boolean findTermination(double[] y, double[] T, int count, GetPropertyValues properties){
+	private static boolean findTermination(double[] y, double[] T, int count, GetPropertyValues properties){
 		//if false terminate
 	    //if true continue
 	    if(count + 1 > properties.MaxCount){
@@ -48,14 +60,14 @@ class perceptron_core
 	    if(y.length > 0){
 	    	double error = 0;
 		    int errorCount = 1;
-		    for (var i = 0; i < y.length; i++){
+		    for (int i = 0; i < y.length; i++){
 		    	error += Math.abs(T[i] - y[i]);
 		    	if(error > 0){
 		    		errorCount++;
 		    	}
 		    }
 
-		    if ((errorCount/mInputs.y.length) <= properties.MaxError){
+		    if ((errorCount/y.length) <= properties.MaxError){
 		    	return false;
 		    }
 	    }
