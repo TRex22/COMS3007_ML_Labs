@@ -1,3 +1,4 @@
+/*Jason Chalom 2016 Perceptron Java version*/
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,12 +31,13 @@ public class GetPropertyValues {
  
 			if (inputStream != null) {
 				prop.load(inputStream);
-			} else {
+			} 
+			else {
 				//throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
 				//so no config file, lets make one
 				prop.setProperty("debug", "false");
 				prop.setProperty("MaxCount", "10000");
-				prop.setProperty("MaxError", "0.1");
+				prop.setProperty("MaxError", "0.01");
 				prop.setProperty("LearningRate", "0.25");
 				prop.store(new FileOutputStream(new File(GetPropertyValues.class.getProtectionDomain().getCodeSource().getLocation().getPath())), "#perceptron Properties");
 			}
@@ -48,11 +50,14 @@ public class GetPropertyValues {
 			LearningRate = Double.parseDouble(prop.getProperty("LearningRate"));
  
 			System.out.println(result + "\nProgram Ran on " + time + " debug=" + debug);
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 		{
 			System.out.println("Exception: " + e);
-		} finally {
+		} 
+		finally {
 			inputStream.close();
 		}
+
 		return result;
 	}
 }
