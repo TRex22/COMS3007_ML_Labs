@@ -42,9 +42,9 @@ public class perceptron_io
 			Scanner sc = new Scanner(file);
 
 			//each line is an X value until an integer is hit then it is a T value
+			String strLine = sc.next();
 			while (sc.hasNext()){
-				noLines++;
-				String strLine = sc.next();
+				noLines++;				
 				Scanner line = new Scanner(strLine).useDelimiter(" ");
 
 				while(line.hasNext()){
@@ -59,10 +59,11 @@ public class perceptron_io
 						T_al.add(line.nextInt());
 					}
 					else{
-						
+
 					}
 					X_al.add(X_line);
 				}
+				strLine = sc.next();
 			}
 
 System.out.print("damn: "+noT);
