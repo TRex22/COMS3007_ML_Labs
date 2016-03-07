@@ -7,8 +7,8 @@ import java.util.Random;
 /**
  * @author Jason Chalom
  * Readme and notes to follow:
- * 
- * 
+ * The test function just runs tests to make sure things work. The debug property handles this.
+ * runPerceptron is the main procedure that is executed
  */
 
 class perceptron
@@ -16,7 +16,6 @@ class perceptron
 	public static void main (String[] args){
 		GetPropertyValues properties = perceptron_io.config();
 		if (properties != null){
-			perceptron_core perceptron = new perceptron_core();
 			System.out.print("COMS3007: Machine LEarning Perceptron\n");
 			System.out.print("Jason Chalom 2016 @TRex22\n\n");
 
@@ -24,10 +23,31 @@ class perceptron
 				System.out.print("Debug Mode is on. Tests Will now run.\n");
 				test(properties);
 			}
+			else{
+				//do the normal flow of the project
+				runPerceptron(args, properties);
+			}
 		}
 	}
 
-	public static double[] rndWeights(int m, int low, int high){
+	private static void runPerceptron(String[] args, GetPropertyValues properties){
+		perceptron_core perceptron = new perceptron_core();
+		if(args.length > 0) {
+			String filePath = args[0];
+			perceptron_input input = perceptron_io.getInput(filePath, properties);
+
+			double[] W = rndWeights(input.getNoX(), -1, 1); //just get length of X
+			System.out.println(Arrays.toString(W));
+			perceptron_output output = perceptron.PerceptLearn(input.getX(), input.getT(), W, properties);
+
+			displayOutput(output);
+		}
+		else{
+			System.out.print("Error! Please specify the file as the first argument.");
+		}
+	}
+
+	private static double[] rndWeights(int m, int low, int high){
 		double weights[] = new double[m];
 		for (int i=0; i<m; i++){ 
 			double weight = Math.random() * (high - low) + low;		
@@ -37,7 +57,7 @@ class perceptron
 	}
 
 	//test scheme using data not in textfiles
-	public static void test(GetPropertyValues properties){	
+	private static void test(GetPropertyValues properties){	
 		perceptron_core perceptron = new perceptron_core();
 		System.out.print("Testing rndWeights function:\n");
 		double[] weightsTest = rndWeights(3, -1, 1);
@@ -85,12 +105,34 @@ class perceptron
 
 		System.out.print("\nTesting internal PerceptLearn function:\n");
 		double[][] X = {{0, 0, -1}, {0, 1, -1}, {1, 0, -1}, {1, 1, -1}};
-		double[] T = {1, 1, 1, 0};
+		int[] T = {1, 1, 1, 0};
 		double[] W = rndWeights(X[0].length, -1, 1); //just get length of X
-		
+
 		perceptron_output output = perceptron.PerceptLearn(X, T, W, properties);
+		//check y to T
+		if (output.getY().length == T.length){
+			boolean test = true;
+			for (int i = 0; i < output.getY().length; i++){
+				if (output.getY()[i] != T[i]){
+					test = false;
+				}
+			}
+			if(test){
+				System.out.print("PerceptLearn function: PASS\n");
+			}
+			else{
+				System.out.print("PerceptLearn function: T and y dont match FAIL!!!!\n");
+			}
+		}
+		else{
+			System.out.print("PerceptLearn function: T and y lengths dont match FAIL!!!!\n");
+		}
 
+		displayOutput(output);
+		
+	}
 
+	private static void displayOutput(perceptron_output output){
 		System.out.print("Final Weights: ");
 		for (int i = 0; i < output.getWeights().length; i++){	
 			System.out.print(" "+output.getWeights()[i]);

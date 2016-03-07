@@ -1,3 +1,10 @@
+/**
+ * @author Jason Chalom
+ * Main file is perceptron.java see that for full documentation
+ * run javac perceptron.java
+ * java perceptron <file>
+ */
+
 class perceptron_output
 {
 	private double[] y;

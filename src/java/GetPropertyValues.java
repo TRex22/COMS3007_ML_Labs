@@ -9,7 +9,9 @@ import java.io.File;
  
 /**
  * @author Jason Chalom
- * 
+ * Main file is perceptron.java see that for full documentation
+ * run javac perceptron.java
+ * java perceptron <file>
  */
  
 public class GetPropertyValues {
@@ -20,6 +22,7 @@ public class GetPropertyValues {
 	public int MaxCount;
 	public double MaxError;
 	public double LearningRate;
+	public boolean DisableErrorTermination;
  
 	public String getPropValues() throws IOException {
  
@@ -39,6 +42,7 @@ public class GetPropertyValues {
 				prop.setProperty("MaxCount", "10000");
 				prop.setProperty("MaxError", "0.01");
 				prop.setProperty("LearningRate", "0.25");
+				prop.setProperty("DisableErrorTermination", "false");
 				prop.store(new FileOutputStream(new File(GetPropertyValues.class.getProtectionDomain().getCodeSource().getLocation().getPath())), "#perceptron Properties");
 			}
  
@@ -48,7 +52,8 @@ public class GetPropertyValues {
 			MaxCount = Integer.parseInt(prop.getProperty("MaxCount"));
 			MaxError = Double.parseDouble(prop.getProperty("MaxError"));
 			LearningRate = Double.parseDouble(prop.getProperty("LearningRate"));
- 
+ 			DisableErrorTermination = Boolean.parseBoolean(prop.getProperty("DisableErrorTermination"));
+
 			System.out.println(result + "\nProgram Ran on " + time + " debug=" + debug);
 		} 
 		catch (Exception e) 		{

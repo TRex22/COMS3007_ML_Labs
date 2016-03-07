@@ -6,12 +6,14 @@ import java.util.Random;
 
 /**
  * @author Jason Chalom
- * 
+ * Main file is perceptron.java see that for full documentation
+ * run javac perceptron.java
+ * java perceptron <file>
  */
 
 class perceptron_core
 {
-	public perceptron_output PerceptLearn(double[][] X, double[] T, double[] W, GetPropertyValues properties){
+	public perceptron_output PerceptLearn(double[][] X, int[] T, double[] W, GetPropertyValues properties){
 		/*while (stopping condition not satisfied)
 	    for (k = 0; k < N; k++)
 	        y = percept(W;X[k])
@@ -65,14 +67,14 @@ class perceptron_core
 	}
 
 	//find the termination conditions
-	private boolean findTermination(double[] y, double[] T, int count, GetPropertyValues properties){
+	private boolean findTermination(double[] y, int[] T, int count, GetPropertyValues properties){
 		//if false terminate
 	    //if true continue
 	    if(count + 1 > properties.MaxCount){
 	    	return false;
 	    }
 
-	    if(y.length > 0){
+	    if(y.length > 0 && !properties.DisableErrorTermination){
 	    	double error = 0;
 		    int errorCount = 1;
 		    for (int i = 0; i < y.length; i++){
