@@ -164,9 +164,6 @@ import java.util.Arrays;
 		int noT = 0;
 		List<List<Double>> X_al = new ArrayList<List<Double>>(2);
 		List<Integer> T_al = new ArrayList<>();
-		double[][] X;
-		int[] T;
-		
 		String line = null;
 
 		try {
@@ -179,24 +176,24 @@ import java.util.Arrays;
 		        //System.out.println(line);
 		        noLines++;
 		        Scanner scLine = new Scanner(line).useDelimiter(" ");
-			List<Double> X_line = new ArrayList<>();
-			
-			while(scLine.hasNext()){
-				noX = 0;
+				List<Double> X_line = new ArrayList<>();
 				
-				if(scLine.hasNextDouble()){
-					noX++;
-					X_line.add(scLine.nextDouble());
-				}
-				else if(scLine.hasNextInt()){
-					noT++;
-					T_al.add(scLine.nextInt());
-				}
-				else{
+				while(scLine.hasNext()){
+					noX = 0;
+					
+					if(scLine.hasNextDouble()){
+						noX++;
+						X_line.add(scLine.nextDouble());
+					}
+					else if(scLine.hasNextInt()){
+						noT++;
+						T_al.add(scLine.nextInt());
+					}
+					else{
 
-				}				
-			}
-			X_al.add(X_line);
+					}				
+				}
+				X_al.add(X_line);
 		    }   
 
 		    bufferedReader.close();         
@@ -207,32 +204,61 @@ import java.util.Arrays;
 		catch(IOException ex) {
 		    System.out.println("Error reading file '" + filePath + "'");                  
 		}
+		System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
 		
+		return rndInputs(X_al, T_al, noLines, noX, noT);	
+	}
+
+	private static perceptron_input rndInputs(List<List<Double>> X_al, List<Integer> T_al, int X_Rows, int X_Cols, int noT){
 		//randomize inputs using PRNG trick
 		long seed = System.nanoTime();
 		Collections.shuffle(X_al, new Random(seed));
 		Collections.shuffle(T_al, new Random(seed));
-
-		X = new double[noLines][noX];
-		for (int i = 0; i < noLines; i++){
-			for (int j = 0; j < noX; j++){
+		
+		double[][] X = new double[X_Rows][X_Cols];
+		for (int i = 0; i < X_Rows; i++){
+			for (int j = 0; j < X_Cols; j++){
 				X[i][j] = X_al.get(i).get(j);
 			}
 		}
 		
-		T = new int[noT];
+		int[] T = new int[noT];
 		for (int i = 0; i < noT; i++){
 			T[i] = T_al.get(i);
 		}
 		
 		perceptron_input input = new perceptron_input();
-		input.setInput(X, T, noLines, noX, noT);
+		input.setInput(X, T, X_Rows, X_Cols, noT);
 
 		return input;
-			
+	}
+
+	private static <T> void printArrayList (List<T> list){
+		String str = "";
+
+		for (T t : list)
+		{
+		    str += t + "\t";
+		}
+
+		System.out.println(str);
+	}
+
+	private static <T> void printArrayList2D (List<List<T>> list){
+		String str = "";
+
+		for (List<T> t : list)
+		{
+		    for (T r : t)
+			{
+			    str += r + "\t";
+			}
+		}
+
+		System.out.println(str);
 	}
 	
-	public static int percept(double X[], double weights[]){
+	private static int percept(double X[], double weights[]){
 		//if w1X1+w2X2...-$ >0 return 1
 	    	//if W1X1+W2X2...-$ <=0 return 0
 	    	//using augemented matrix
