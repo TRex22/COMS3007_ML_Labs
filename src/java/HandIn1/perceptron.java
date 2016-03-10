@@ -288,7 +288,7 @@ import java.util.Arrays;
 		System.out.println(str);
 	}
 	
-	private static int percept(double X[], double weights[]){
+	private static double percept(double X[], double weights[]){
 		//if w1X1+w2X2...-$ >0 return 1
 	    	//if W1X1+W2X2...-$ <=0 return 0
 	    	//using augemented matrix
