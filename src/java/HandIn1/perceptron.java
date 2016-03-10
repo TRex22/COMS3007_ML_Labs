@@ -180,18 +180,17 @@ import java.util.Arrays;
 				
 				while(scLine.hasNext()){
 					noX = 0;
+					String element = scLine.next();
+					//System.out.println("element: " + element); 
 					
-					if(scLine.hasNextDouble()){
-						noX++;
-						X_line.add(scLine.nextDouble());
-					}
-					else if(scLine.hasNextInt()){
+					if(isInt(element)){
 						noT++;
-						T_al.add(scLine.nextInt());
+						T_al.add(Integer.parseInt(element));
 					}
-					else{
-
-					}				
+					else if(isDouble(element)){
+						noX++;
+						X_line.add(Double.parseDouble(element));
+					}					
 				}
 				X_al.add(X_line);
 		    }   
@@ -207,6 +206,26 @@ import java.util.Arrays;
 		System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
 		
 		return rndInputs(X_al, T_al, noLines, noX, noT);	
+	}
+
+	private static boolean isInt (String str){
+		try{
+			Integer.parseInt(str);
+			return true;
+		}
+		catch (Exception e){
+			return false;
+		}
+	}
+
+	private static boolean isDouble (String str){
+		try{
+			Double.parseDouble(str);
+			return true;
+		}
+		catch (Exception e){
+			return false;
+		}
 	}
 
 	private static perceptron_input rndInputs(List<List<Double>> X_al, List<Integer> T_al, int X_Rows, int X_Cols, int noT){
