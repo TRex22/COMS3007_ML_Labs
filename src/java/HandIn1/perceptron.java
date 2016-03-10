@@ -297,17 +297,19 @@ import java.util.Arrays;
 
 		for (int i = 0; i < X.length; i++){
 			sum += X[i] * weights[i];
-		}		
+		}
 
-		if (sum > 0.0){
+		//Okay so no need to descretize
+
+		/*if (sum > 0.0){
 			return 1;
 		}
 		else if (sum <= 0.0){
 			return 0;
-		}
+		}*/
 
-		System.out.print("Error: Failure In Neuron");
-		return 3;		
+		//System.out.print("Error: Failure In Neuron");
+		return sum;		
 	}
 	
 	//find the termination conditions
