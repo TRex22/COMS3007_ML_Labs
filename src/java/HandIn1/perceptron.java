@@ -173,30 +173,27 @@ import java.util.Arrays;
 		    BufferedReader bufferedReader = new BufferedReader(fileReader);
 
 		    while((line = bufferedReader.readLine()) != null) {
-		        //System.out.println(line);
+		    	//System.out.println(line);
 		        noLines++;
-		        Scanner scLine = new Scanner(line).useDelimiter(" ");
-				List<Double> X_line = new ArrayList<>();
-				
-				while(scLine.hasNext()){
-					noX = 0;
-					String element = scLine.next();
-					//System.out.println("element: " + element); 
-					
-					if(isInt(element)){
-						noT++;
-						T_al.add(Integer.parseInt(element));
-					}
-					else if(isDouble(element)){
+		    	List<Double> X_line = new ArrayList<>();
+		    	String[] row = line.split(" ");
+		    	for (int i = 0; i < row.length; i++){
+		    		String element = row[i];
+		    		//System.out.println("element: " + element); 
+	    			if(testDouble(element)){
 						noX++;
 						X_line.add(Double.parseDouble(element));
-					}					
-				}
-				X_al.add(X_line);
-		    }   
-
-		    bufferedReader.close();         
-		}
+					}
+					else if (!testDouble(element)){
+						noT++;
+						//System.out.println("element: " + element); 
+						T_al.add(Integer.parseInt(element));
+					}		
+		    	}
+		    	X_al.add(X_line);
+		    }			
+			bufferedReader.close();
+	    }   
 		catch(FileNotFoundException ex) {
 		    System.out.println("Unable to open file '" + filePath + "'");                
 		}
@@ -206,6 +203,19 @@ import java.util.Arrays;
 		System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
 		
 		return rndInputs(X_al, T_al, noLines, noX, noT);	
+	}
+
+	private static boolean testDouble (String str){
+		boolean isDouble = isDouble(str);
+		if (!isDouble){
+			return isDouble;
+		}
+
+		if (str.contains(".") || str.contains(",")){
+			return true;
+		}
+
+		return false;
 	}
 
 	private static boolean isInt (String str){
@@ -237,6 +247,7 @@ import java.util.Arrays;
 		double[][] X = new double[X_Rows][X_Cols];
 		for (int i = 0; i < X_Rows; i++){
 			for (int j = 0; j < X_Cols; j++){
+				System.out.println(X_al.get(i).get(j));
 				X[i][j] = X_al.get(i).get(j);
 			}
 		}
