@@ -5,6 +5,12 @@
  * java perceptron <file>
  */
 
+import java.util.*;
+import java.lang.*;
+import java.io.*;
+import java.util.Random;
+import java.util.Arrays;
+
 class perceptron_input
 {
 	private double[][] X;

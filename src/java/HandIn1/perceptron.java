@@ -56,7 +56,7 @@ import java.util.Arrays;
 		//while(stopping condition holds)
 		double[] y = new double[noOutputs];
 		double[] hNodes = new double[noHiddenNodes];
-	    	double[] yErr = new double[noOutputs];
+    	double[] yErr = new double[noOutputs];
 		double[] hErr = new double[noHiddenNodes];
 		int count = 0;
 		boolean continue_ = findTermination(y, T, count, MaxCount, DisableErrorTermination);
@@ -119,24 +119,23 @@ import java.util.Arrays;
 			count++;
 		}
 		
-		displayOutput (hNodes.length, W, U);
-		
+		displayOutput (hNodes.length, W, U);		
 	}
 
 	public static void displayOutput (int noHNodes, double[][] W, double[][] U){
-		System.out.print("\nComplete!\n\nNumber Hidden Nodes: "+noHNodes);
+		System.out.print("Complete!\n\nNumber Hidden Nodes: "+noHNodes);
 		System.out.print("\n\nW: "+Arrays.toString(W)+"\n\n");
-		System.out.print("\nW (hidden weights) Please note that the array is swapped around:\n\n");
+		System.out.print("\nW (hidden weights) Please note that the array is swapped around:\n");
 		
-	/*
+	
 		for (int i = 0; i < W.length; i++){
 			System.out.print("W["+i+"]:");
 			for (int j = 0; j < W[i].length; i++){
 				System.out.print(" "+W[i][j]+" ");
 			}
 		}
-*/
-		System.out.print("\nU (output weights) Please note that the array is swapped around:\n\n");
+
+		System.out.print("\n\nU (output weights) Please note that the array is swapped around:\n");
 		for (int i = 0; i < U.length; i++){
 			System.out.print("U["+i+"]:");
 			for (int j = 0; j < U[i].length; i++){
@@ -167,9 +166,7 @@ import java.util.Arrays;
 		String line = null;
 
 		try {
-		
 		    FileReader fileReader = new FileReader(filePath);
-
 		    BufferedReader bufferedReader = new BufferedReader(fileReader);
 
 		    while((line = bufferedReader.readLine()) != null) {
@@ -177,6 +174,7 @@ import java.util.Arrays;
 		        noLines++;
 		    	List<Double> X_line = new ArrayList<>();
 		    	String[] row = line.split(" ");
+		    	noX = 0;
 		    	for (int i = 0; i < row.length; i++){
 		    		String element = row[i];
 		    		//System.out.println("element: " + element); 
@@ -200,17 +198,12 @@ import java.util.Arrays;
 		catch(IOException ex) {
 		    System.out.println("Error reading file '" + filePath + "'");                  
 		}
-		System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
+		//System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
 		
 		return rndInputs(X_al, T_al, noLines, noX, noT);	
 	}
 
 	private static boolean testDouble (String str){
-		boolean isDouble = isDouble(str);
-		if (!isDouble){
-			return isDouble;
-		}
-
 		if (str.contains(".") || str.contains(",")){
 			return true;
 		}
@@ -243,11 +236,11 @@ import java.util.Arrays;
 		long seed = System.nanoTime();
 		Collections.shuffle(X_al, new Random(seed));
 		Collections.shuffle(T_al, new Random(seed));
-		
+		//System.out.println("X_Rows: " + X_al.size() + " X_Cols: "+X_al.get(0).size()+" noT:"+noT); 
 		double[][] X = new double[X_Rows][X_Cols];
 		for (int i = 0; i < X_Rows; i++){
 			for (int j = 0; j < X_Cols; j++){
-				System.out.println(X_al.get(i).get(j));
+				//System.out.println(X_al.get(i).get(j));
 				X[i][j] = X_al.get(i).get(j);
 			}
 		}
