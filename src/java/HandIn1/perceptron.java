@@ -21,10 +21,13 @@ import java.util.Arrays;
  
  class perceptron
 {
+	//settings probably should be done properly but seems to work for this purpose
 	private static int MaxCount = 100;
 	private static boolean DisableErrorTermination = false;
 	private static double beta = 0.5;
 	private static double learningRate = 0.25;
+
+	//some global counters
 	private static double error = 0.0;
 	private static int noError = 0;		
 	
@@ -39,7 +42,7 @@ import java.util.Arrays;
 		
 		//no hidden nodes
 		int noHiddenNodes = input.getNoX();
-		int noOutputs = getNoOutputs(T);//TODO fix
+		int noOutputs = getNoOutputs(T);
 		int noLines = input.getNoLines();
 		int noX = input.getNoX();	
 			
@@ -154,6 +157,7 @@ import java.util.Arrays;
 			}
 		}
 
+		System.out.print("Number of Outputs Computed: " + testList.size() + "\n\n");
 		return testList.size();
 	}
 	
@@ -191,6 +195,7 @@ import java.util.Arrays;
 		    	X_al.add(X_line);
 		    }			
 			bufferedReader.close();
+			fileReader.close();
 	    }   
 		catch(FileNotFoundException ex) {
 		    System.out.println("Unable to open file '" + filePath + "'");                

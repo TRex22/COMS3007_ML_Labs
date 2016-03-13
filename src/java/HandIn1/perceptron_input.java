@@ -13,13 +13,13 @@ import java.util.Arrays;
 
 class perceptron_input
 {
-	private double[][] X;
-	private int[] T;
+	private List<List<Double>> X;
+	private List<Integer> T;
 	private int noLines;
 	private int noX;
 	private int noT;
 
-	public void setInput(double[][] X, int[] T, int noLines, int noX, int noT){
+	public void setInput(List<List<Double>> X, List<Integer> T, int noLines, int noX, int noT){
 		this.X = X;
 		this.T = T;
 		this.noLines = noLines;
@@ -27,11 +27,11 @@ class perceptron_input
 		this.noT = noT;
 	}
 
-	public double[][] getX(){
+	public List<List<Double>> X getX(){
 		return X;
 	}
 
-	public int[] getT(){
+	public List<Integer> T getT(){
 		return T;
 	}
 
