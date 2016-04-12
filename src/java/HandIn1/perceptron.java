@@ -65,8 +65,7 @@ import java.util.Arrays;
 		boolean continue_ = findTermination(y, T, count, MaxCount, DisableErrorTermination);
 
 		while(continue_){
-			//inherint rnd of inputs but bad ;)
-			input = readFile(args[0]);
+			input = rndInputs(X_al, T_al, noLines, noX, noT);
 			X = input.getX();
 			T = input.getT();
 
@@ -204,11 +203,13 @@ import java.util.Arrays;
 		    System.out.println("Error reading file '" + filePath + "'");                  
 		}
 		//System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
-		
-		return rndInputs(X_al, T_al, noLines, noX, noT);	
+		perceptron_input input = new perceptron_input();
+		input.setInput(X, T, X_Rows, X_Cols, noT);
+
+		return input;
 	}
 
-	private static boolean testDouble (String str){
+	private static boolean testDouble(String str){
 		if (str.contains(".") || str.contains(",")){
 			return true;
 		}
@@ -216,7 +217,7 @@ import java.util.Arrays;
 		return false;
 	}
 
-	private static boolean isInt (String str){
+	private static boolean isInt(String str){
 		try{
 			Integer.parseInt(str);
 			return true;
@@ -226,7 +227,7 @@ import java.util.Arrays;
 		}
 	}
 
-	private static boolean isDouble (String str){
+	private static boolean isDouble(String str){
 		try{
 			Double.parseDouble(str);
 			return true;
@@ -261,7 +262,7 @@ import java.util.Arrays;
 		return input;
 	}
 
-	private static <T> void printArrayList (List<T> list){
+	private static <T> void printArrayList(List<T> list){
 		String str = "";
 
 		for (T t : list)
@@ -272,7 +273,7 @@ import java.util.Arrays;
 		System.out.println(str);
 	}
 
-	private static <T> void printArrayList2D (List<List<T>> list){
+	private static <T> void printArrayList2D(List<List<T>> list){
 		String str = "";
 
 		for (List<T> t : list)
