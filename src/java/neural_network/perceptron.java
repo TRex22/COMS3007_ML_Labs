@@ -19,7 +19,7 @@ import java.util.Arrays;
  *		calc error on training set and then on verification set
  */
  
- class perceptron
+public class perceptron
 {
 	//settings probably should be done properly but seems to work for this purpose
 	private static int MaxCount = 100;
@@ -72,16 +72,17 @@ import java.util.Arrays;
 			//for each datapoint find hidden nodes
 			for (int i = 0; i < noHiddenNodes; i++){
 				hNodes[i] = percept(X[0], W[i]); //super hack since X is always random
-			}
 
-			//apply activation fn for each hidden node 1/1+e^(beta*h) => new set of hidden nodes
-			for (int i = 0; i < noHiddenNodes; i++){
-				hNodes[i] = 1 / 1+Math.pow(Math.E, beta*hNodes[i]);
+				//apply activation fn for each hidden node 1/1+e^(beta*h) => new set of hidden nodes
+				hNodes[i] = sigmoidFunction(hNodes[i]);
 			}
 
 			//for each hidden node find output nodes
 			for (int i = 0; i < noOutputs; i++){
 				y[i] = percept(hNodes, U[i]);
+
+				//apply activation fn for each ouput node 1/1+e^(beta*h) => new set of ouput nodes
+				y[i] = sigmoidFunction(y[i]);
 			}
 
 			//work out the deltas/errors
@@ -346,5 +347,11 @@ import java.util.Arrays;
 			weights[i] = weight;
 		}
 		return weights;
+	}
+
+	private static double sigmoidFunction(double input){
+		double pow = -(beta)*(input);
+		double output = 1 / 1+Math.pow(Math.E, pow);
+		return output;
 	}
 }
