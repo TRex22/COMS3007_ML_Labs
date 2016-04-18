@@ -8,6 +8,11 @@ import java.util.Arrays;
 /**
  * @author Jason Chalom
  * 
+ * m is collection mew of centers
+ * Algorithm 1 K-means Algorithm (offline variant):
+ * 
+ * Given dataset normalise data
+ * Choose k -> the no of clusters
  * 
  */
  
@@ -15,6 +20,8 @@ public class k_means_offline
 {
     private static int MaxCount = 1000;
     private static double MaxError = 0.1;
+    private static int MaxClusters = 25;
+    private static int OverrideClusterNo = 0;
     
     public static void main (String filePath){
         //read data into
@@ -31,8 +38,7 @@ public class k_means_offline
         
         //while loop and stopping condition
         int count = 0;
-        boolean continue_ = findTermination(count, oldM, m);
-        
+        boolean continue_ = findTermination(count, oldM, m);   
     }
     
     private static boolean findTermination(int count, double[] oldM, double[] m){
@@ -62,7 +68,13 @@ public class k_means_offline
     }
     
     private static double findNoK(double[][] X){
+    	//TODO some magic here to make this better
         int noK = 0;
+        int high = X.length / 2;
+
+        if (OverrideClusterNo > 0){
+        	return OverrideClusterNo;
+        }
         
         if (high <= 0){
             throw new Exception();
@@ -73,12 +85,14 @@ public class k_means_offline
         else if (high == 2){
             noK = 2;
         }
+        else if (high > MaxClusters){
+        	noK = MaxClusters;
+        }
         else{
-            int high = X.length / 2;
             noK = (int) (Math.random() * (high - 2) + 2) + 1;
         }
         
-        
+        return noK;
     }
     
     private static double[][] normaliseDataForClustering(double[][] X){
