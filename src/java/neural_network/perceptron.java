@@ -65,7 +65,7 @@ public class perceptron
 		boolean continue_ = findTermination(y, T, count, MaxCount, DisableErrorTermination);
 
 		while(continue_){
-			input = rndInputs(X_al, T_al, noLines, noX, noT);
+			input = rndInputs(X, T, noLines, noX, T.length);
 			X = input.getX();
 			T = input.getT();
 
@@ -203,9 +203,22 @@ public class perceptron
 		catch(IOException ex) {
 		    System.out.println("Error reading file '" + filePath + "'");                  
 		}
-		//System.out.println("noLines: " + noLines + " noX: "+noX+" noT:"+noT); 
+		
+		double[][] X = new double[noLines][noX];
+		for (int i = 0; i < noLines; i++){
+			for (int j = 0; j < noX; j++){
+				//System.out.println(X_al.get(i).get(j));
+				X[i][j] = X_al.get(i).get(j);
+			}
+		}
+		
+		int[] T = new int[noT];
+		for (int i = 0; i < noT; i++){
+			T[i] = T_al.get(i);
+		}
+
 		perceptron_input input = new perceptron_input();
-		input.setInput(X, T, X_Rows, X_Cols, noT);
+		input.setInput(X, T, noLines, noX, noT);
 
 		return input;
 	}
@@ -238,24 +251,72 @@ public class perceptron
 		}
 	}
 
-	private static perceptron_input rndInputs(List<List<Double>> X_al, List<Integer> T_al, int X_Rows, int X_Cols, int noT){
-		//randomize inputs using PRNG trick
-		long seed = System.nanoTime();
-		Collections.shuffle(X_al, new Random(seed));
-		Collections.shuffle(T_al, new Random(seed));
-		//System.out.println("X_Rows: " + X_al.size() + " X_Cols: "+X_al.get(0).size()+" noT:"+noT); 
-		double[][] X = new double[X_Rows][X_Cols];
-		for (int i = 0; i < X_Rows; i++){
-			for (int j = 0; j < X_Cols; j++){
-				//System.out.println(X_al.get(i).get(j));
-				X[i][j] = X_al.get(i).get(j);
-			}
-		}
+	private static void ShuffleIntArray(int[] array)
+	{
+	    int index, temp;
+	    Random random = new Random();
+	    for (int i = array.length - 1; i > 0; i--)
+	    {
+	        index = random.nextInt(i + 1);
+	        temp = array[index];
+	        array[index] = array[i];
+	        array[i] = temp;
+	    }
+	}
+
+	private static void ShuffleDoubleArray(double[] array)
+	{
+	    int index;
+	    double temp;
+	    Random random = new Random();
+	    for (int i = array.length - 1; i > 0; i--)
+	    {
+	        index = random.nextInt(i + 1);
+	        temp = array[index];
+	        array[index] = array[i];
+	        array[i] = temp;
+	    }
+	}
+
+	/*private void ShuffleDoubleDoubleArray(double[][] array)
+	{
+	    int index
+	    double[] temp;
+	    Random random = new Random();
+	    for (int i = array.length - 1; i > 0; i--)
+	    {
+	        index = random.nextInt(i + 1);
+	        temp = array[index];
+	        array[index] = array[i];
+	        array[i] = temp;
+	    }
+	}*/
+
+	/** Shuffles a 2D array with the same number of columns for each row. */
+	public static void shuffleTwoDArray(double[][] matrix) 
+	{
+		int columns = matrix[0].length;
+		Random rnd = new Random();
+	    int size = matrix.length * columns;
+	    for (int i = size; i > 1; i--)
+	        swap(matrix, columns, i - 1, rnd.nextInt(i));
+	}
+
+	/** 
+	 * Swaps two entries in a 2D array, where i and j are 1-dimensional indexes, looking at the 
+	 * array from left to right and top to bottom.
+	 */
+	public static void swap(double[][] matrix, int columns, int i, int j) 
+	{
+	    double tmp = matrix[i / columns][i % columns];
+	    matrix[i / columns][i % columns] = matrix[j / columns][j % columns];
+	    matrix[j / columns][j % columns] = tmp;
+	}
+
+	private static perceptron_input rndInputs(double[][] X, int[] T, int X_Rows, int X_Cols, int noT){
 		
-		int[] T = new int[noT];
-		for (int i = 0; i < noT; i++){
-			T[i] = T_al.get(i);
-		}
+		shuffleTwoDArray(X);
+		ShuffleIntArray(T);
 		
 		perceptron_input input = new perceptron_input();
 		input.setInput(X, T, X_Rows, X_Cols, noT);
