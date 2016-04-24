@@ -22,10 +22,16 @@ public class k_means_offline
     private static double MaxError = 0.1;
     private static int MaxClusters = 25;
     private static int OverrideClusterNo = 0;
+
+    private static double currentError = 0.0;
     
-    public static void main (String filePath){
+    public static void main(String[] args){
+    	String filePath = args[0];
+    	System.out.println("Clustering K-means offline, dataset: "+filePath);
+
         //read data into
         double[][] X = readFile(filePath);
+        int noRows = X.length;
         int dataDim = X[0].length;
         //normalise
         X = normaliseDataForClustering(X);
@@ -33,27 +39,105 @@ public class k_means_offline
         //TODO JMC fix at somepoint in the next decade
         int k = findNoK(X);
         //choose K cluster centres
-        double[] m = chooseKCluserCentres(int k);
+        double[] m = chooseKCluserCentres(k);
         double[] oldM = m;
         
         //while loop and stopping condition
         int count = 0;
-        boolean continue_ = findTermination(count, oldM, m);   
+        
+        //the index of each m associated to X, done below
+        //first array is list of m's, second will be associated X_row indexes
+        /*int[][] X_Assignments = new int[k][noRows];*/
+        List<List<Integer>> X_Assignments = initXAssignments(m);
+
+        boolean continue_ = findTermination(count, oldM, m);
+        while(continue_){
+        	oldM = m;
+
+        	for(int i=0; i<X.length; i++){
+        		int minClusterIndex = findMinClusterIndex(X[i], m);
+        		X_Assignments.get(minClusterIndex).add(i); //add to the list of clusters to points
+        	}
+
+        	for (int i=0; i<m.length; i++){
+        		double clusterMean = findClusterMean(X_Assignments, i);
+        		m[i] = clusterMean;
+        	}
+
+        	continue_ = findTermination(count, oldM, m);
+        	count++;
+        }
+
+        printOutput(X_Assignments, m, currentError, k, count);
+    }
+
+    private static void printOutput(List<List<Integer>> X_Assignments, double[] m, double error, int noK, int count){
+    	System.out.println("Final Output: ");
+    	System.out.println("Number of Clusters: "+noK);
+    	System.out.println("Final Error: "+error+" Final Count: "+count);
+    }
+
+    private static double findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
+    	double clusterMean = 0.0;
+    	double sumOfAllMPoints = 0.0;
+
+    	for (int i=0; i<X_Assignments.get(indexM).size(); i++){
+    		sumOfAllMPoints += X_Assignments.get(indexM).get(i);
+    	}
+
+    	System.out.println(X_Assignments.get(indexM).size());
+    	clusterMean = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+    	return clusterMean;
+    }
+
+    private static int findMinClusterIndex(double[] X_row, double[] m){
+    	double currentMin = euclideanDistance(X_row, m[0]);
+    	int currentMinIndex = 0;
+    	for (int i=1; i<m.length; i++){
+    		if (m[i] < currentMin){
+    			currentMin = euclideanDistance(X_row, m[i]);
+    			currentMinIndex = i;
+    		}
+    	}
+    	return currentMinIndex;
+    }
+
+    private static double euclideanDistance(double[] X_row, double m){
+    	double distance = 0.0;
+    	double squaredSum = 0.0;
+
+    	for (int i=0; i<X_row.length; i++){
+    		squaredSum += X_row[i] - m;
+    	}
+
+    	distance = Math.sqrt(squaredSum);
+
+    	return distance;
+    }
+
+    private static List<List<Integer>> initXAssignments(double[] m){
+    	List<List<Integer>> X_Assignments = new ArrayList<List<Integer>>();
+    	for (int i=0; i<m.length; i++){
+    		List<Integer> m_list = new ArrayList<Integer>();
+    		X_Assignments.add(m_list);
+    	}
+    	return X_Assignments;
     }
     
     private static boolean findTermination(int count, double[] oldM, double[] m){
         //if false terminate
 	    //if true continue
-	    if(count + 1 > MaxCount){
-	    	return false;
-	    }
-	    
 	    boolean check = true;
+	    if(count + 1 > MaxCount){
+	    	check = false;	    	
+	    }	    
+
 	    for (int i = 0; i <m.length; i++){
 	        double err = m[i] - oldM[i];
-	        if (err < MaxError || err == 0){
+	        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
 	            check = false;
 	        }
+	        currentError = err;
 	    }
 	    
 	    return check;
@@ -67,7 +151,7 @@ public class k_means_offline
         return m;
     }
     
-    private static double findNoK(double[][] X){
+    private static int findNoK(double[][] X){
     	//TODO some magic here to make this better
         int noK = 0;
         int high = X.length / 2;
@@ -77,7 +161,7 @@ public class k_means_offline
         }
         
         if (high <= 0){
-            throw new Exception();
+        	noK = -1; //TODO JMC Break
         }
         else if (high == 1){
             noK = 1;
@@ -89,7 +173,7 @@ public class k_means_offline
         	noK = MaxClusters;
         }
         else{
-            noK = (int) (Math.random() * (high - 2) + 2) + 1;
+            noK = (int)(Math.random() * (high - 2) + 2) + 1;
         }
         
         return noK;
@@ -99,7 +183,7 @@ public class k_means_offline
         double normX = 0.0;
         for (int i = 0; i < X.length; i++){
 			for (int j = 0; j < X[0].length; j++){
-				normX += math.pow(X[i][j], 2);
+				normX += Math.pow(X[i][j], 2);
 			}
 		}
 		normX = Math.sqrt(normX);
@@ -136,7 +220,7 @@ public class k_means_offline
 		    		noX++;
 					X_line.add(Double.parseDouble(element));
 		    	}
-		    	X_al.add(X_line);
+		    	dataPoints.add(X_line);
 		    }			
 			bufferedReader.close();
 			fileReader.close();
@@ -151,8 +235,7 @@ public class k_means_offline
 		double[][] X = new double[noLines][noX];
 		for (int i = 0; i < noLines; i++){
 			for (int j = 0; j < noX; j++){
-				//System.out.println(X_al.get(i).get(j));
-				X[i][j] = X_al.get(i).get(j);
+				X[i][j] = dataPoints.get(i).get(j);
 			}
 		}
 
