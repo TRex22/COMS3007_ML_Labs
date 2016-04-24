@@ -39,8 +39,8 @@ public class k_means_offline
         //TODO JMC fix at somepoint in the next decade
         int k = findNoK(X);
         //choose K cluster centres
-        double[] m = chooseKCluserCentres(k);
-        double[] oldM = m;
+        double[][] m = chooseKCluserCentres(k);
+        double[][] oldM = m;
         
         //while loop and stopping condition
         int count = 0;
