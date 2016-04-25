@@ -39,7 +39,7 @@ public class k_means_offline
         //TODO JMC fix at somepoint in the next decade
         int k = findNoK(X);
         //choose K cluster centres
-        double[][] m = chooseKCluserCentres(k);
+        double[][] m = chooseKCluserCentres(k, X[0].length);
         double[][] oldM = m;
         
         //while loop and stopping condition
@@ -143,8 +143,8 @@ public class k_means_offline
 	    return check;
     }
     
-    private static double[] chooseKCluserCentres(int noK){
-        double[] m = new double[noK];
+    private static double[][] chooseKCluserCentres(int noK, int dimensionality){
+        double[][] m = new double[noK][dimensionality];
         for (int i = 0; i < m.length; i++){
             m[i] = Math.random();
         }
