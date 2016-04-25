@@ -32,7 +32,7 @@ public class k_means_offline
         //read data into
         double[][] X = readFile(filePath);
         int noRows = X.length;
-        int dataDim = X[0].length;
+        int dimensionality = X[0].length;
         //normalise
         X = normaliseDataForClustering(X);
         //find no K
@@ -48,7 +48,7 @@ public class k_means_offline
         //the index of each m associated to X, done below
         //first array is list of m's, second will be associated X_row indexes
         /*int[][] X_Assignments = new int[k][noRows];*/
-        List<List<Integer>> X_Assignments = initXAssignments(m);
+        List<List<Integer>> X_Assignments = initXAssignments(m, dimensionality);
 
         boolean continue_ = findTermination(count, oldM, m);
         while(continue_){
@@ -60,8 +60,7 @@ public class k_means_offline
         	}
 
         	for (int i=0; i<m.length; i++){
-        		double clusterMean = findClusterMean(X_Assignments, i);
-        		m[i] = clusterMean;
+        		m[i] = findClusterMean(X, X_Assignments, i);
         	}
 
         	continue_ = findTermination(count, oldM, m);
@@ -71,26 +70,27 @@ public class k_means_offline
         printOutput(X_Assignments, m, currentError, k, count);
     }
 
-    private static void printOutput(List<List<Integer>> X_Assignments, double[] m, double error, int noK, int count){
+    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double error, int noK, int count){
     	System.out.println("Final Output: ");
     	System.out.println("Number of Clusters: "+noK);
     	System.out.println("Final Error: "+error+" Final Count: "+count);
     }
 
-    private static double findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
-    	double clusterMean = 0.0;
-    	double sumOfAllMPoints = 0.0;
-
-    	for (int i=0; i<X_Assignments.get(indexM).size(); i++){
-    		sumOfAllMPoints += X_Assignments.get(indexM).get(i);
-    	}
-
-    	System.out.println(X_Assignments.get(indexM).size());
-    	clusterMean = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+    private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
+    	double clusterMean[] = new double[X[0].length];
+    	
+        for (int i=0; i<X_Assignments.get(indexM).size(); i++){
+            double sumOfAllMPoints = 0.0;
+            for (int j=0; j<X[0].length; j++){
+                sumOfAllMPoints += X_Assignments.get(indexM).get(i)[j];
+            }
+            clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+        }
+    	
     	return clusterMean;
     }
 
-    private static int findMinClusterIndex(double[] X_row, double[] m){
+    private static int findMinClusterIndex(double[] X_row, double[][] m){
     	double currentMin = euclideanDistance(X_row, m[0]);
     	int currentMinIndex = 0;
     	for (int i=1; i<m.length; i++){
@@ -102,21 +102,23 @@ public class k_means_offline
     	return currentMinIndex;
     }
 
-    private static double euclideanDistance(double[] X_row, double m){
+    private static double euclideanDistance(double[] X_row, double[] m){
     	double distance = 0.0;
-    	double squaredSum = 0.0;
+        double sumEuclidDistance = 0.0;
 
-    	for (int i=0; i<X_row.length; i++){
-    		squaredSum += X_row[i] - m;
-    	}
+        for (int i=0; i<X_row.length; i++){
+            for (int j=0; j<m[i].length; j++){
+                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2);
+            }
+        }
 
-    	distance = Math.sqrt(squaredSum);
+        distance = Math.sqrt(sumEuclidDistance);
 
     	return distance;
     }
 
-    private static List<List<Integer>> initXAssignments(double[] m){
-    	List<List<Integer>> X_Assignments = new ArrayList<List<Integer>>();
+    private static List<List<Integer>> initXAssignments(double[][] m, int dimensionality){
+    	List<List<Integer[]>> X_Assignments = new ArrayList<List<Integer[]>>();
     	for (int i=0; i<m.length; i++){
     		List<Integer> m_list = new ArrayList<Integer>();
     		X_Assignments.add(m_list);
@@ -124,7 +126,7 @@ public class k_means_offline
     	return X_Assignments;
     }
     
-    private static boolean findTermination(int count, double[] oldM, double[] m){
+    private static boolean findTermination(int count, double[][] oldM, double[][] m){
         //if false terminate
 	    //if true continue
 	    boolean check = true;
@@ -132,14 +134,20 @@ public class k_means_offline
 	    	check = false;	    	
 	    }	    
 
+        double err = 0.0;
 	    for (int i = 0; i <m.length; i++){
-	        double err = m[i] - oldM[i];
+            double sumEuclidDistance = 0.0;
+            for (int j=0; j<m[i].length; j++){
+                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
+            }
+	        err = Math.sqrt(sumEuclidDistance);
+
 	        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
 	            check = false;
 	        }
-	        currentError = err;
 	    }
-	    
+	    currentError = err;
+
 	    return check;
     }
     
