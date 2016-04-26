@@ -32,7 +32,7 @@ public class k_means_offline
         //read data into
         double[][] X = readFile(filePath);
         int noRows = X.length;
-        int dataDim = X[0].length;
+        int dimensionality = X[0].length;
         //normalise
         X = normaliseDataForClustering(X);
         //find no K
@@ -60,62 +60,63 @@ public class k_means_offline
         	}
 
         	for (int i=0; i<m.length; i++){
-        		double clusterMean = findClusterMean(X_Assignments, i);
-        		m[i] = clusterMean;
+        		m[i] = findClusterMean(X, X_Assignments, i); //finds for every dimension 
         	}
 
         	continue_ = findTermination(count, oldM, m);
         	count++;
         }
 
-        double sumOfSquaresError = calculateSumOfSquaresError(X, m);
-
         printOutput(X_Assignments, m, currentError, k, count);
 
         //append output file specified by args[1]
-        writeOutputToFile (args[0], k, m, sumOfSquaresError, args[0])
+        //writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
     }
 
-    private static void printOutput(List<List<Integer>> X_Assignments, double[] m, double error, int noK, int count){
+    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double error, int noK, int count){
     	System.out.println("Final Output: ");
     	System.out.println("Number of Clusters: "+noK);
     	System.out.println("Final Error: "+error+" Final Count: "+count);
     }
 
-    private static double findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
-    	double clusterMean = 0.0;
-    	double sumOfAllMPoints = 0.0;
-
-    	for (int i=0; i<X_Assignments.get(indexM).size(); i++){
-    		sumOfAllMPoints += X_Assignments.get(indexM).get(i);
-    	}
-
-    	System.out.println(X_Assignments.get(indexM).size());
-    	clusterMean = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+    private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
+    	double clusterMean[] = new double[X[0].length];
+    	
+        for (int i=0; i<X_Assignments.get(indexM).size(); i++){
+            double sumOfAllMPoints = 0.0;
+            for (int j=0; j<X[0].length; j++){
+                sumOfAllMPoints += X_Assignments.get(indexM).get(i)[j];
+            }
+            clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+        }
+    	
     	return clusterMean;
     }
 
-    private static int findMinClusterIndex(double[] X_row, double[] m){
+    private static int findMinClusterIndex(double[] X_row, double[][] m){
     	double currentMin = euclideanDistance(X_row, m[0]);
     	int currentMinIndex = 0;
     	for (int i=1; i<m.length; i++){
-    		if (m[i] < currentMin){
-    			currentMin = euclideanDistance(X_row, m[i]);
+    		double newMin = euclideanDistance(X_row, m[i]);
+    		if (newMin < currentMin){
+    			currentMin = newMin;
     			currentMinIndex = i;
     		}
     	}
     	return currentMinIndex;
     }
 
-    private static double euclideanDistance(double[] X_row, double m){
+    private static double euclideanDistance(double[] X_row, double[] m){
     	double distance = 0.0;
-    	double squaredSum = 0.0;
+        double sumEuclidDistance = 0.0;
 
-    	for (int i=0; i<X_row.length; i++){
-    		squaredSum += X_row[i] - m;
-    	}
+        for (int i=0; i<X_row.length; i++){
+            for (int j=0; j<m[i].length; j++){
+                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2);
+            }
+        }
 
-    	distance = Math.sqrt(squaredSum);
+        distance = Math.sqrt(sumEuclidDistance);
 
     	return distance;
     }
@@ -129,7 +130,7 @@ public class k_means_offline
     	return X_Assignments;
     }
     
-    private static boolean findTermination(int count, double[] oldM, double[] m){
+    private static boolean findTermination(int count, double[][] oldM, double[][] m){
         //if false terminate
 	    //if true continue
 	    boolean check = true;
@@ -137,21 +138,29 @@ public class k_means_offline
 	    	check = false;	    	
 	    }	    
 
+        double err = 0.0;
 	    for (int i = 0; i <m.length; i++){
-	        double err = m[i] - oldM[i];
+            double sumEuclidDistance = 0.0;
+            for (int j=0; j<m[i].length; j++){
+                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
+            }
+	        err = Math.sqrt(sumEuclidDistance);
+
 	        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
 	            check = false;
 	        }
-	        currentError = err;
 	    }
-	    
+	    currentError = err;
+
 	    return check;
     }
     
     private static double[][] chooseKCluserCentres(int noK, int dimensionality){
         double[][] m = new double[noK][dimensionality];
         for (int i = 0; i < m.length; i++){
-            m[i] = Math.random();
+            for (int j=0; j<dimensionality; j++){
+            	m[i][j] = Math.random();
+            }
         }
         return m;
     }
@@ -247,7 +256,41 @@ public class k_means_offline
 		return X;
 	}
 
+/*For reference: http://stackoverflow.com/questions/1625234/how-to-append-text-to-an-existing-file-in-java*/
+/*Only used to figure out correct error handling methods*/
 	private void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
+		FileWriter fileWriter = null;
+		BufferedWriter bufferedWriter = null;
+		PrintWriter printWriter = null;
+		try {
+		    fileWriter = new FileWriter(filename, true);
+		    bufferedWriter = new BufferedWriter(fileWriter);
+		    printWriter = new PrintWriter(bufferedWriter);
+		    /*out.println("the text");*/
+		    printWriter.close();
+		} catch (IOException e) {
+		    System.out.println("File IO error: "+e);
+		}
+		finally {
+		    try {
+		        if(printWriter != null)
+		            printWriter.close();
+		    } catch (IOException e) {
+		        System.out.println("File IO error: "+e);
+		    }
+		    try {
+		        if(bufferedWriter != null)
+		            bufferedWriter.close();
+		    } catch (IOException e) {
+		        System.out.println("File IO error: "+e);
+		    }
+		    try {
+		        if(fileWriter != null)
+		            fileWriter.close();
+		    } catch (IOException e) {
+		        System.out.println("File IO error: "+e);
+		    }
+		}
 
 	}
 }
