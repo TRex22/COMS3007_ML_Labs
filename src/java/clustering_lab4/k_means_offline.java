@@ -85,7 +85,8 @@ public class k_means_offline
         for (int i=0; i<X_Assignments.get(indexM).size(); i++){
             double sumOfAllMPoints = 0.0;
             for (int j=0; j<X[0].length; j++){
-                sumOfAllMPoints += X_Assignments.get(indexM).get(i)[j];
+            	double point = X[X_Assignments.get(indexM).get(i)][j];
+                sumOfAllMPoints += point;
             }
             clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
         }
@@ -111,8 +112,8 @@ public class k_means_offline
         double sumEuclidDistance = 0.0;
 
         for (int i=0; i<X_row.length; i++){
-            for (int j=0; j<m[i].length; j++){
-                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2);
+            for (int j=0; j<m.length; j++){
+                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2); //TODO JMC CHECK!!!!
             }
         }
 
