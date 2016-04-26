@@ -85,7 +85,7 @@ public class k_means_offline
         for (int i=0; i<X_Assignments.get(indexM).size(); i++){
             double sumOfAllMPoints = 0.0;
             for (int j=0; j<X[0].length; j++){
-            	double point = X[X_Assignments.get(indexM).get(i)][j];
+            	double point = X[X_Assignments.get(indexM).get(i)][j]; //TODO JMC Check later
                 sumOfAllMPoints += point;
             }
             clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
@@ -257,8 +257,6 @@ public class k_means_offline
 		return X;
 	}
 
-/*For reference: http://stackoverflow.com/questions/1625234/how-to-append-text-to-an-existing-file-in-java*/
-/*Only used to figure out correct error handling methods*/
 	private void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
 		FileWriter fileWriter = null;
 		BufferedWriter bufferedWriter = null;
@@ -269,28 +267,8 @@ public class k_means_offline
 		    printWriter = new PrintWriter(bufferedWriter);
 		    /*out.println("the text");*/
 		    printWriter.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		    System.out.println("File IO error: "+e);
-		}
-		finally {
-		    try {
-		        if(printWriter != null)
-		            printWriter.close();
-		    } catch (IOException e) {
-		        System.out.println("File IO error: "+e);
-		    }
-		    try {
-		        if(bufferedWriter != null)
-		            bufferedWriter.close();
-		    } catch (IOException e) {
-		        System.out.println("File IO error: "+e);
-		    }
-		    try {
-		        if(fileWriter != null)
-		            fileWriter.close();
-		    } catch (IOException e) {
-		        System.out.println("File IO error: "+e);
-		    }
 		}
 
 	}
