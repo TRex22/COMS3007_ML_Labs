@@ -86,9 +86,12 @@ public class k_means_offline
             double sumOfAllMPoints = 0.0;
             for (int j=0; j<X[0].length; j++){
             	double point = X[X_Assignments.get(indexM).get(i)][j]; //TODO JMC Check later
-                sumOfAllMPoints += point;
+                sumOfAllMPoints += point;                
             }
-            clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+
+            for (int j=0; j<clusterMean.length;j++){
+            	clusterMean[j] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+            }
         }
     	
     	return clusterMean;
