@@ -68,7 +68,12 @@ public class k_means_offline
         	count++;
         }
 
+        double sumOfSquaresError = calculateSumOfSquaresError(X, m);
+
         printOutput(X_Assignments, m, currentError, k, count);
+
+        //append output file specified by args[1]
+        writeOutputToFile (args[0], k, m, sumOfSquaresError, args[0])
     }
 
     private static void printOutput(List<List<Integer>> X_Assignments, double[] m, double error, int noK, int count){
@@ -115,7 +120,7 @@ public class k_means_offline
     	return distance;
     }
 
-    private static List<List<Integer>> initXAssignments(double[] m){
+    private static List<List<Integer>> initXAssignments(double[][] m){
     	List<List<Integer>> X_Assignments = new ArrayList<List<Integer>>();
     	for (int i=0; i<m.length; i++){
     		List<Integer> m_list = new ArrayList<Integer>();
@@ -240,5 +245,9 @@ public class k_means_offline
 		}
 
 		return X;
+	}
+
+	private void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
+
 	}
 }
