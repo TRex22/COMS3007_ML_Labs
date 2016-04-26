@@ -19,6 +19,7 @@ import java.util.Arrays;
 public class k_means_offline
 {
     private static int MaxCount = 1000;
+    private static boolean IgnoreMaxError = true;
     private static double MaxError = 0.1;
     private static int MaxClusters = 25;
     private static int OverrideClusterNo = 0;
@@ -48,7 +49,7 @@ public class k_means_offline
         //the index of each m associated to X, done below
         //first array is list of m's, second will be associated X_row indexes
         /*int[][] X_Assignments = new int[k][noRows];*/
-        List<List<Integer>> X_Assignments = initXAssignments(m, dimensionality);
+        List<List<Integer>> X_Assignments = initXAssignments(m);
 
         boolean continue_ = findTermination(count, oldM, m);
         while(continue_){
@@ -60,31 +61,75 @@ public class k_means_offline
         	}
 
         	for (int i=0; i<m.length; i++){
-        		m[i] = findClusterMean(X, X_Assignments, i);
+        		m[i] = findClusterMean(X, X_Assignments, i); //finds for every dimension 
         	}
 
         	continue_ = findTermination(count, oldM, m);
         	count++;
         }
 
-        printOutput(X_Assignments, m, currentError, k, count);
+        double sumOfSquaresError = findSumOfSquaresError(X, m);
+        printOutput(X_Assignments, m, sumOfSquaresError, k, count);
+
+        //append output file specified by args[1]
+        //writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
     }
 
-    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double error, int noK, int count){
+    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double sumOfSquaresError, int noK, int count){
     	System.out.println("Final Output: ");
     	System.out.println("Number of Clusters: "+noK);
-    	System.out.println("Final Error: "+error+" Final Count: "+count);
+    	System.out.println(/*"Final Error: "+error+" */"Final Count: "+count);
+    	
+    	String clusterCentres = "Clusters centres: ";
+    	for (int i=0; i<m.length;i++){
+    		clusterCentres += "(";
+    		for (int j=0; j<m[i].length;j++){
+    			if (j != m[i].length-1){
+    				clusterCentres += m[i][j]+", ";
+    			}
+    			else{
+    				clusterCentres += m[i][j]+"";
+    			}
+    		}
+    		if (i != m.length-1){
+    			clusterCentres += ") and ";
+    		}
+    		else{
+    			clusterCentres += ")";
+    		}
+    	}
+    	clusterCentres += "\n";
+    	System.out.println(clusterCentres);
+    	System.out.println("sum-of-squares error = "+sumOfSquaresError);
+    }
+
+    private static double findSumOfSquaresError(double[][] X, double[][] m){
+    	double sumOfSquaresError = 0.0;
+    	for (int j=0; j<m.length;j++){
+    		double sumOfPoints = 0.0;
+    		for (int i=0; i<X.length;i++){
+    			sumOfPoints += euclideanDistanceNoSqrt(X[i], m[j]);//X[i] - m[j];
+    		}
+    		sumOfSquaresError += sumOfPoints;
+    	}
+
+    	return sumOfSquaresError;
     }
 
     private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
     	double clusterMean[] = new double[X[0].length];
-    	
-        for (int i=0; i<X_Assignments.get(indexM).size(); i++){
-            double sumOfAllMPoints = 0.0;
-            for (int j=0; j<X[0].length; j++){
-                sumOfAllMPoints += X_Assignments.get(indexM).get(i)[j];
-            }
-            clusterMean[i] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
+    	int listSize = X_Assignments.get(indexM).size();
+System.out.println(listSize);
+        //for each dimension add points together
+        for (int i=0; i<X[0].length; i++){
+        	double sumOfAllMPoints = 0.0;
+        	//for each point in given list 
+        	for (int j=0; j<listSize; j++){
+        		double point = X[X_Assignments.get(indexM).get(j)][i];
+        		sumOfAllMPoints += point;
+        	}
+
+        	clusterMean[i] = (1 / listSize) * sumOfAllMPoints;
         }
     	
     	return clusterMean;
@@ -94,11 +139,13 @@ public class k_means_offline
     	double currentMin = euclideanDistance(X_row, m[0]);
     	int currentMinIndex = 0;
     	for (int i=1; i<m.length; i++){
-    		if (m[i] < currentMin){
-    			currentMin = euclideanDistance(X_row, m[i]);
+    		double newMin = euclideanDistance(X_row, m[i]);
+    		if (newMin < currentMin){
+    			currentMin = newMin;
     			currentMinIndex = i;
     		}
     	}
+    	System.out.println(currentMinIndex);
     	return currentMinIndex;
     }
 
@@ -107,9 +154,7 @@ public class k_means_offline
         double sumEuclidDistance = 0.0;
 
         for (int i=0; i<X_row.length; i++){
-            for (int j=0; j<m[i].length; j++){
-                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2);
-            }
+            sumEuclidDistance += Math.pow((X_row[i] - m[i]), 2); //TODO JMC CHECK!!!!
         }
 
         distance = Math.sqrt(sumEuclidDistance);
@@ -117,8 +162,19 @@ public class k_means_offline
     	return distance;
     }
 
-    private static List<List<Integer>> initXAssignments(double[][] m, int dimensionality){
-    	List<List<Integer[]>> X_Assignments = new ArrayList<List<Integer[]>>();
+    private static double euclideanDistanceNoSqrt(double[] X_row, double[] m){
+    	double distance = 0.0;
+        double sumEuclidDistance = 0.0;
+
+        for (int i=0; i<X_row.length; i++){
+            sumEuclidDistance += Math.pow((X_row[i] - m[i]), 2); //TODO JMC CHECK!!!!
+        }
+
+    	return sumEuclidDistance;
+    }
+
+    private static List<List<Integer>> initXAssignments(double[][] m){
+    	List<List<Integer>> X_Assignments = new ArrayList<List<Integer>>();
     	for (int i=0; i<m.length; i++){
     		List<Integer> m_list = new ArrayList<Integer>();
     		X_Assignments.add(m_list);
@@ -130,23 +186,25 @@ public class k_means_offline
         //if false terminate
 	    //if true continue
 	    boolean check = true;
-	    if(count + 1 > MaxCount){
+	    if(count + 2 > MaxCount){
 	    	check = false;	    	
-	    }	    
+	    }	   
 
-        double err = 0.0;
-	    for (int i = 0; i <m.length; i++){
-            double sumEuclidDistance = 0.0;
-            for (int j=0; j<m[i].length; j++){
-                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
-            }
-	        err = Math.sqrt(sumEuclidDistance);
+	    if (!IgnoreMaxError){
+	    	double err = 0.0;
+		    for (int i = 0; i <m.length; i++){
+	            double sumEuclidDistance = 0.0;
+	            for (int j=0; j<m[i].length; j++){
+	                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
+	            }
+		        err = Math.sqrt(sumEuclidDistance);
 
-	        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
-	            check = false;
-	        }
-	    }
-	    currentError = err;
+		        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
+		            check = false;
+		        }
+		    }
+		    currentError = err;
+	    } 
 
 	    return check;
     }
@@ -154,7 +212,9 @@ public class k_means_offline
     private static double[][] chooseKCluserCentres(int noK, int dimensionality){
         double[][] m = new double[noK][dimensionality];
         for (int i = 0; i < m.length; i++){
-            m[i] = Math.random();
+            for (int j=0; j<dimensionality; j++){
+            	m[i][j] = Math.random();
+            }
         }
         return m;
     }
@@ -248,5 +308,21 @@ public class k_means_offline
 		}
 
 		return X;
+	}
+
+	private void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
+		FileWriter fileWriter = null;
+		BufferedWriter bufferedWriter = null;
+		PrintWriter printWriter = null;
+		try {
+		    fileWriter = new FileWriter(filename, true);
+		    bufferedWriter = new BufferedWriter(fileWriter);
+		    printWriter = new PrintWriter(bufferedWriter);
+		    /*out.println("the text");*/
+		    printWriter.close();
+		} catch (Exception e) {
+		    System.out.println("File IO error: "+e);
+		}
+
 	}
 }
