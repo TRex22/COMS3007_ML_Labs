@@ -127,7 +127,6 @@ public class perceptron
 
 	public static void displayOutput (int noHNodes, double[][] W, double[][] U){
 		System.out.print("Complete!\n\nNumber Hidden Nodes: "+noHNodes);
-		System.out.print("\n\nW: "+Arrays.toString(W)+"\n\n");
 		System.out.print("\nW (hidden weights) Please note that the array is swapped around:\n");
 		
 	

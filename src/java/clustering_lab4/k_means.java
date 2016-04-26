@@ -12,7 +12,6 @@ import java.util.Arrays;
  
 public class k_means
 {
-	private static String txtOutput = "DatasetH4: ";
     private static int MaxCount = 1000;
     private static boolean IgnoreMaxError = true;
     private static double MaxError = 0.1;
@@ -20,6 +19,7 @@ public class k_means
     private static int OverrideClusterNo = 0;
     private static double LearningRate = 0.25;
     private static boolean WriteFile = true;
+    private static boolean DisplayAlgorithmHeading = true;
 
     private static double currentError = 0.0;
     
@@ -35,21 +35,23 @@ public class k_means
         X = normaliseDataForClustering(X);
                 
         //loop k from 2 to 10 then randomise?
+        String heading = "\nK-Means Algorithm:\n==================\n\n";
+    	appendFile (heading, args[1]);
         for (int i=2; i<12; i++){
-        	OverrideClusterNo = i;
-        	
+        	//OverrideClusterNo = i;
 	        //int k = findNoK(X);
-        	k_means_offline(X, i, args);
+        	k_means_offline(X, i, args);        	
         }
+
+        heading = "\nK-Means Online Algorithm:\n=========================\n\n";
+    	appendFile (heading, args[1]);
         for (int i=1; i<12; i++){
-        	OverrideClusterNo = i;
-        	
+        	//OverrideClusterNo = i;        	
 	        //int k = findNoK(X);
-        	k_means_online(X, i, args);  
+	        k_means_online(X, i, args);         	
         }       
         /*k_means_offline(X, 20, args);
-        k_means_online(X, 20, args);  */
-              
+        k_means_online(X, 20, args);  */    
     }
 
     private static void k_means_offline(double[][] X, int k, String[] args){
@@ -357,6 +359,35 @@ public class k_means
 
 	private static void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
 		if (WriteFile){
+			 String txtOutput = "Dataset: "+dataset+", ";
+
+		    txtOutput += "k = "+k+", ";
+		    String clusterCentres = "Clusters centres: ";
+	    	for (int i=0; i<m.length;i++){
+	    		clusterCentres += "(";
+	    		for (int j=0; j<m[i].length;j++){
+	    			if (j != m[i].length-1){
+	    				clusterCentres += m[i][j]+", ";
+	    			}
+	    			else{
+	    				clusterCentres += m[i][j]+"";
+	    			}
+	    		}
+	    		if (i != m.length-1){
+	    			clusterCentres += ") and ";
+	    		}
+	    		else{
+	    			clusterCentres += ")";
+	    		}
+	    	}
+	    	txtOutput += clusterCentres+", sum-of-squares error = "+sumOfSquaresError+"\n";
+
+	    	appendFile(txtOutput, filename);
+		}
+	}
+
+	private static void appendFile(String output, String filename){
+		if (WriteFile){
 			FileWriter fileWriter = null;
 			BufferedWriter bufferedWriter = null;
 			PrintWriter printWriter = null;
@@ -364,29 +395,8 @@ public class k_means
 			    fileWriter = new FileWriter(filename, true);
 			    bufferedWriter = new BufferedWriter(fileWriter);
 			    printWriter = new PrintWriter(bufferedWriter);
-			    /*out.println("the text");*/
-			    txtOutput += "k = "+k+", ";
-			    String clusterCentres = "Clusters centres: ";
-		    	for (int i=0; i<m.length;i++){
-		    		clusterCentres += "(";
-		    		for (int j=0; j<m[i].length;j++){
-		    			if (j != m[i].length-1){
-		    				clusterCentres += m[i][j]+", ";
-		    			}
-		    			else{
-		    				clusterCentres += m[i][j]+"";
-		    			}
-		    		}
-		    		if (i != m.length-1){
-		    			clusterCentres += ") and ";
-		    		}
-		    		else{
-		    			clusterCentres += ")";
-		    		}
-		    	}
-		    	txtOutput += clusterCentres+", sum-of-squares error = "+sumOfSquaresError+"\n";
 
-			    printWriter.println(txtOutput);
+			    printWriter.println(output);
 
 			    printWriter.close();
 			} catch (Exception e) {
