@@ -1,4 +1,4 @@
-/*Jason Chalom 2016 K_means offline Java version*/
+/*Jason Chalom 2016 K_means Java version*/
 import java.util.*;
 import java.lang.*;
 import java.io.*;
@@ -7,28 +7,24 @@ import java.util.Arrays;
 
 /**
  * @author Jason Chalom
- * 
- * m is collection mew of centers
- * Algorithm 1 K-means Algorithm (offline variant):
- * 
- * Given dataset normalise data
- * Choose k -> the no of clusters
- * 
+ * Both offline and online are here
  */
  
-public class k_means_offline
+public class k_means
 {
+	private static String txtOutput = "DatasetH4: ";
     private static int MaxCount = 1000;
     private static boolean IgnoreMaxError = true;
     private static double MaxError = 0.1;
     private static int MaxClusters = 25;
     private static int OverrideClusterNo = 0;
+    private static double LearningRate = 0.25;
 
     private static double currentError = 0.0;
     
     public static void main(String[] args){
     	String filePath = args[0];
-    	System.out.println("Clustering K-means offline, dataset: "+filePath);
+    	System.out.println("Clustering K-means, dataset: "+filePath);
 
         //read data into
         double[][] X = readFile(filePath);
@@ -36,10 +32,26 @@ public class k_means_offline
         int dimensionality = X[0].length;
         //normalise
         X = normaliseDataForClustering(X);
-        //find no K
-        //TODO JMC fix at somepoint in the next decade
-        int k = findNoK(X);
-        //choose K cluster centres
+                
+        //loop k from 2 to 10 then randomise?
+        for (int i=2; i<12; i++){
+        	OverrideClusterNo = i;
+        	
+	        //int k = findNoK(X);
+        	k_means_offline(X, i, args);
+        }
+        for (int i=1; i<12; i++){
+        	OverrideClusterNo = i;
+        	
+	        //int k = findNoK(X);
+        	k_means_online(X, i, args);  
+        }       
+        //k_means_online(X, 3, args);  
+              
+    }
+
+    private static void k_means_offline(double[][] X, int k, String[] args){
+    	//choose K cluster centres
         double[][] m = chooseKCluserCentres(k, X[0].length);
         double[][] oldM = m;
         
@@ -51,17 +63,22 @@ public class k_means_offline
         /*int[][] X_Assignments = new int[k][noRows];*/
         List<List<Integer>> X_Assignments = initXAssignments(m);
 
-        boolean continue_ = findTermination(count, oldM, m);
+    	boolean continue_ = findTermination(count, oldM, m);
         while(continue_){
         	oldM = m;
+        	X_Assignments = initXAssignments(m);
 
         	for(int i=0; i<X.length; i++){
         		int minClusterIndex = findMinClusterIndex(X[i], m);
+        		//System.out.println(minClusterIndex);
         		X_Assignments.get(minClusterIndex).add(i); //add to the list of clusters to points
         	}
 
+        	//Check lists
+        	//printDoubleArrayList(X_Assignments);
+
         	for (int i=0; i<m.length; i++){
-        		m[i] = findClusterMean(X, X_Assignments, i); //finds for every dimension 
+        		m[i] = findClusterMean(X, X_Assignments, m, i); //finds for every dimension 
         	}
 
         	continue_ = findTermination(count, oldM, m);
@@ -72,35 +89,51 @@ public class k_means_offline
         printOutput(X_Assignments, m, sumOfSquaresError, k, count);
 
         //append output file specified by args[1]
-        //writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
+        writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
     }
 
-    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double sumOfSquaresError, int noK, int count){
-    	System.out.println("Final Output: ");
-    	System.out.println("Number of Clusters: "+noK);
-    	System.out.println(/*"Final Error: "+error+" */"Final Count: "+count);
-    	
-    	String clusterCentres = "Clusters centres: ";
-    	for (int i=0; i<m.length;i++){
-    		clusterCentres += "(";
-    		for (int j=0; j<m[i].length;j++){
-    			if (j != m[i].length-1){
-    				clusterCentres += m[i][j]+", ";
-    			}
-    			else{
-    				clusterCentres += m[i][j]+"";
-    			}
-    		}
-    		if (i != m.length-1){
-    			clusterCentres += ") and ";
-    		}
-    		else{
-    			clusterCentres += ")";
-    		}
-    	}
-    	clusterCentres += "\n";
-    	System.out.println(clusterCentres);
-    	System.out.println("sum-of-squares error = "+sumOfSquaresError);
+    private static void k_means_online(double[][] X, int k, String[] args){
+    	//choose K cluster centres
+        double[][] m = chooseKCluserCentres(k, X[0].length);
+        double[][] oldM = m;
+        
+        //while loop and stopping condition
+        int count = 0;
+        
+        //the index of each m associated to X, done below
+        //first array is list of m's, second will be associated X_row indexes
+        /*int[][] X_Assignments = new int[k][noRows];*/
+        List<List<Integer>> X_Assignments = initXAssignments(m);
+
+    	boolean continue_ = findTermination(count, oldM, m);
+        while(continue_){
+        	oldM = m;
+        	X_Assignments = initXAssignments(m);
+
+        	for(int i=0; i<X.length; i++){
+        		int minClusterIndex = findMinClusterIndex(X[i], m);
+        		//System.out.println(minClusterIndex);
+        		X_Assignments.get(minClusterIndex).add(i); //add to the list of clusters to points
+
+        		for (int j=0; j<m.length; j++){
+	        		for (int d=0; d<m[0].length; d++){
+	        			m[j][d] = m[j][d] + LearningRate*(X[i][d] - m[j][d]);
+	        		}
+	        	}
+        	}
+
+        	//Check lists
+        	//printDoubleArrayList(X_Assignments);    	
+
+        	continue_ = findTermination(count, oldM, m);
+        	count++;
+        }
+
+        double sumOfSquaresError = findSumOfSquaresError(X, m);
+        printOutput(X_Assignments, m, sumOfSquaresError, k, count);
+
+        //append output file specified by args[1]
+        writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
     }
 
     private static double findSumOfSquaresError(double[][] X, double[][] m){
@@ -116,45 +149,53 @@ public class k_means_offline
     	return sumOfSquaresError;
     }
 
-    private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
+    private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, double[][] m, int indexM){
     	double clusterMean[] = new double[X[0].length];
     	int listSize = X_Assignments.get(indexM).size();
-System.out.println(listSize);
-        //for each dimension add points together
-        for (int i=0; i<X[0].length; i++){
-        	double sumOfAllMPoints = 0.0;
-        	//for each point in given list 
-        	for (int j=0; j<listSize; j++){
-        		double point = X[X_Assignments.get(indexM).get(j)][i];
-        		sumOfAllMPoints += point;
-        	}
+    	//TODO Fix
+		if (listSize > 0){ //should always be > 0
+			//System.out.println(listSize);
+	        //for each dimension add points together
+	        for (int i=0; i<X[0].length; i++){
+	        	double sumOfAllMPoints = 0.0;
+	        	//for each point in given list 
+	        	for (int j=0; j<listSize; j++){
+	        		double point = X[X_Assignments.get(indexM).get(j)][i];
+	        		sumOfAllMPoints += point;
+	        	}
 
-        	clusterMean[i] = (1 / listSize) * sumOfAllMPoints;
-        }
+	        	clusterMean[i] = (1.00 / listSize) * sumOfAllMPoints;
+	        	//System.out.println("k: "+(1.00 / listSize) );
+	        }
+		}
+		else { //hack so stuff does not zero out
+			//clusterMean = m[indexM]; //TODO fix
+		}
     	
     	return clusterMean;
     }
 
-    private static int findMinClusterIndex(double[] X_row, double[][] m){
-    	double currentMin = euclideanDistance(X_row, m[0]);
+    private static int findMinClusterIndex(double[] X_point, double[][] m){
+    	double currentMin = euclideanDistance(X_point, m[0]);
     	int currentMinIndex = 0;
     	for (int i=1; i<m.length; i++){
-    		double newMin = euclideanDistance(X_row, m[i]);
+    		double newMin = euclideanDistance(X_point, m[i]);
+    		//System.out.println("oldMin: "+newMin+" old min: "+currentMin);
     		if (newMin < currentMin){
     			currentMin = newMin;
-    			currentMinIndex = i;
+    			currentMinIndex = i;   			
     		}
-    	}
-    	System.out.println(currentMinIndex);
+    	}    	
     	return currentMinIndex;
     }
 
-    private static double euclideanDistance(double[] X_row, double[] m){
+    private static double euclideanDistance(double[] X_point, double[] m){
     	double distance = 0.0;
         double sumEuclidDistance = 0.0;
 
-        for (int i=0; i<X_row.length; i++){
-            sumEuclidDistance += Math.pow((X_row[i] - m[i]), 2); //TODO JMC CHECK!!!!
+        for (int i=0; i<X_point.length; i++){
+            sumEuclidDistance += Math.pow((X_point[i] - m[i]), 2); //TODO JMC CHECK!!!!
+            //System.out.println("X_point[i]: "+X_point[i] + " m[i]: "+m[i]);
         }
 
         distance = Math.sqrt(sumEuclidDistance);
@@ -214,6 +255,7 @@ System.out.println(listSize);
         for (int i = 0; i < m.length; i++){
             for (int j=0; j<dimensionality; j++){
             	m[i][j] = Math.random();
+            	//System.out.println(m[i][j]);
             }
         }
         return m;
@@ -259,6 +301,7 @@ System.out.println(listSize);
         for (int i = 0; i < X.length; i++){
 			for (int j = 0; j < X[0].length; j++){
 				X[i][j] = (1/normX) * X[i][j];
+				//System.out.println(X[i][j]);
 			}
 		}
         
@@ -310,7 +353,7 @@ System.out.println(listSize);
 		return X;
 	}
 
-	private void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
+	private static void writeOutputToFile (String dataset, int k, double[][] m, double sumOfSquaresError, String filename){
 		FileWriter fileWriter = null;
 		BufferedWriter bufferedWriter = null;
 		PrintWriter printWriter = null;
@@ -319,10 +362,76 @@ System.out.println(listSize);
 		    bufferedWriter = new BufferedWriter(fileWriter);
 		    printWriter = new PrintWriter(bufferedWriter);
 		    /*out.println("the text");*/
+		    txtOutput += "k = "+k+", ";
+		    String clusterCentres = "Clusters centres: ";
+	    	for (int i=0; i<m.length;i++){
+	    		clusterCentres += "(";
+	    		for (int j=0; j<m[i].length;j++){
+	    			if (j != m[i].length-1){
+	    				clusterCentres += m[i][j]+", ";
+	    			}
+	    			else{
+	    				clusterCentres += m[i][j]+"";
+	    			}
+	    		}
+	    		if (i != m.length-1){
+	    			clusterCentres += ") and ";
+	    		}
+	    		else{
+	    			clusterCentres += ")";
+	    		}
+	    	}
+	    	txtOutput += clusterCentres+", sum-of-squares error = "+sumOfSquaresError+"\n";
+
+		    printWriter.println(txtOutput);
+
 		    printWriter.close();
 		} catch (Exception e) {
 		    System.out.println("File IO error: "+e);
 		}
 
 	}
+
+	private static void printDoubleArrayList(List<List<Integer>> doubleArrayList){
+    	for (int i=0; i<doubleArrayList.size(); i++){
+    		String out = arrayListToString(doubleArrayList.get(i));
+    		System.out.println("List "+i+": "+out);
+    	}
+    }
+
+    private static String arrayListToString(List<Integer> arrayList){
+    	String out = "List: ";
+    	for (int i=0; i<arrayList.size(); i++){
+			out += arrayList.get(i)+" ";    		
+    	}
+    	return out;
+    }
+
+    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double sumOfSquaresError, int noK, int count){
+    	System.out.println("Final Output: ");
+    	System.out.println("Number of Clusters: "+noK);
+    	System.out.println(/*"Final Error: "+error+" */"Final Count: "+count);
+    	
+    	String clusterCentres = "Clusters centres: ";
+    	for (int i=0; i<m.length;i++){
+    		clusterCentres += "(";
+    		for (int j=0; j<m[i].length;j++){
+    			if (j != m[i].length-1){
+    				clusterCentres += m[i][j]+", ";
+    			}
+    			else{
+    				clusterCentres += m[i][j]+"";
+    			}
+    		}
+    		if (i != m.length-1){
+    			clusterCentres += ") and ";
+    		}
+    		else{
+    			clusterCentres += ")";
+    		}
+    	}
+    	clusterCentres += "\n";
+    	System.out.println(clusterCentres);
+    	System.out.println("sum-of-squares error = "+sumOfSquaresError);
+    }
 }
