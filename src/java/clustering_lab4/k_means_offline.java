@@ -19,6 +19,7 @@ import java.util.Arrays;
 public class k_means_offline
 {
     private static int MaxCount = 1000;
+    private static boolean IgnoreMaxError = true;
     private static double MaxError = 0.1;
     private static int MaxClusters = 25;
     private static int OverrideClusterNo = 0;
@@ -67,31 +68,68 @@ public class k_means_offline
         	count++;
         }
 
-        printOutput(X_Assignments, m, currentError, k, count);
+        double sumOfSquaresError = findSumOfSquaresError(X, m);
+        printOutput(X_Assignments, m, sumOfSquaresError, k, count);
 
         //append output file specified by args[1]
         //writeOutputToFile (args[0], k, m, sumOfSquaresError, args[1]);
     }
 
-    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double error, int noK, int count){
+    private static void printOutput(List<List<Integer>> X_Assignments, double[][] m, double sumOfSquaresError, int noK, int count){
     	System.out.println("Final Output: ");
     	System.out.println("Number of Clusters: "+noK);
-    	System.out.println("Final Error: "+error+" Final Count: "+count);
+    	System.out.println(/*"Final Error: "+error+" */"Final Count: "+count);
+    	
+    	String clusterCentres = "Clusters centres: ";
+    	for (int i=0; i<m.length;i++){
+    		clusterCentres += "(";
+    		for (int j=0; j<m[i].length;j++){
+    			if (j != m[i].length-1){
+    				clusterCentres += m[i][j]+", ";
+    			}
+    			else{
+    				clusterCentres += m[i][j]+"";
+    			}
+    		}
+    		if (i != m.length-1){
+    			clusterCentres += ") and ";
+    		}
+    		else{
+    			clusterCentres += ")";
+    		}
+    	}
+    	clusterCentres += "\n";
+    	System.out.println(clusterCentres);
+    	System.out.println("sum-of-squares error = "+sumOfSquaresError);
+    }
+
+    private static double findSumOfSquaresError(double[][] X, double[][] m){
+    	double sumOfSquaresError = 0.0;
+    	for (int j=0; j<m.length;j++){
+    		double sumOfPoints = 0.0;
+    		for (int i=0; i<X.length;i++){
+    			sumOfPoints += euclideanDistanceNoSqrt(X[i], m[j]);//X[i] - m[j];
+    		}
+    		sumOfSquaresError += sumOfPoints;
+    	}
+
+    	return sumOfSquaresError;
     }
 
     private static double[] findClusterMean(double[][] X, List<List<Integer>> X_Assignments, int indexM){
     	double clusterMean[] = new double[X[0].length];
-    	
-        for (int i=0; i<X_Assignments.get(indexM).size(); i++){
-            double sumOfAllMPoints = 0.0;
-            for (int j=0; j<X[0].length; j++){
-            	double point = X[X_Assignments.get(indexM).get(i)][j]; //TODO JMC Check later
-                sumOfAllMPoints += point;                
-            }
+    	int listSize = X_Assignments.get(indexM).size();
+System.out.println(listSize);
+        //for each dimension add points together
+        for (int i=0; i<X[0].length; i++){
+        	double sumOfAllMPoints = 0.0;
+        	//for each point in given list 
+        	for (int j=0; j<listSize; j++){
+        		double point = X[X_Assignments.get(indexM).get(j)][i];
+        		sumOfAllMPoints += point;
+        	}
 
-            for (int j=0; j<clusterMean.length;j++){
-            	clusterMean[j] = (1 / X_Assignments.get(indexM).size()) * sumOfAllMPoints;
-            }
+        	clusterMean[i] = (1 / listSize) * sumOfAllMPoints;
         }
     	
     	return clusterMean;
@@ -107,6 +145,7 @@ public class k_means_offline
     			currentMinIndex = i;
     		}
     	}
+    	System.out.println(currentMinIndex);
     	return currentMinIndex;
     }
 
@@ -115,14 +154,23 @@ public class k_means_offline
         double sumEuclidDistance = 0.0;
 
         for (int i=0; i<X_row.length; i++){
-            for (int j=0; j<m.length; j++){
-                sumEuclidDistance += Math.pow((X_row[i] - m[j]), 2); //TODO JMC CHECK!!!!
-            }
+            sumEuclidDistance += Math.pow((X_row[i] - m[i]), 2); //TODO JMC CHECK!!!!
         }
 
         distance = Math.sqrt(sumEuclidDistance);
 
     	return distance;
+    }
+
+    private static double euclideanDistanceNoSqrt(double[] X_row, double[] m){
+    	double distance = 0.0;
+        double sumEuclidDistance = 0.0;
+
+        for (int i=0; i<X_row.length; i++){
+            sumEuclidDistance += Math.pow((X_row[i] - m[i]), 2); //TODO JMC CHECK!!!!
+        }
+
+    	return sumEuclidDistance;
     }
 
     private static List<List<Integer>> initXAssignments(double[][] m){
@@ -138,23 +186,25 @@ public class k_means_offline
         //if false terminate
 	    //if true continue
 	    boolean check = true;
-	    if(count + 1 > MaxCount){
+	    if(count + 2 > MaxCount){
 	    	check = false;	    	
-	    }	    
+	    }	   
 
-        double err = 0.0;
-	    for (int i = 0; i <m.length; i++){
-            double sumEuclidDistance = 0.0;
-            for (int j=0; j<m[i].length; j++){
-                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
-            }
-	        err = Math.sqrt(sumEuclidDistance);
+	    if (!IgnoreMaxError){
+	    	double err = 0.0;
+		    for (int i = 0; i <m.length; i++){
+	            double sumEuclidDistance = 0.0;
+	            for (int j=0; j<m[i].length; j++){
+	                sumEuclidDistance += Math.pow((m[i][j] - oldM[i][j]), 2);
+	            }
+		        err = Math.sqrt(sumEuclidDistance);
 
-	        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
-	            check = false;
-	        }
-	    }
-	    currentError = err;
+		        if ((err < MaxError && err > 0) || (err == 0 && count > 1)){
+		            check = false;
+		        }
+		    }
+		    currentError = err;
+	    } 
 
 	    return check;
     }
