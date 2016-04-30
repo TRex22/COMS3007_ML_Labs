@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Image_Processor", "Image_Processor\Image_Processor.csproj", "{E10B8E73-8E8C-46B9-A5E5-A5030DE9FA73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessor", "Image_Processor\ImageProcessor.csproj", "{E10B8E73-8E8C-46B9-A5E5-A5030DE9FA73}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cuda_Learning", "Cuda_Learning\Cuda_Learning.vcxproj", "{E998E913-41E1-4DF7-98BC-858CD3B17A32}"
 EndProject
