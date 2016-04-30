@@ -52,8 +52,10 @@ namespace ImageProcessor
 
                 if (areAllInputsThere)
                 {
-                    //check if folder
-                    //if so run for all items in folde
+                    //check if folder, has to be folder for rnd
+                    //if so run for all items in folder
+
+
                 }
                 else
                 {
@@ -88,17 +90,17 @@ namespace ImageProcessor
 
             if (args.Length >= 6)
             {
-                //check input file / folder exists 1
+                //check foldername exists 1
                 if (String.IsNullOrWhiteSpace(args[1]))
                 {
                     return false;
                 }
-                //check if colourOption exists 2
+                //check if filename exists 2
                 if (String.IsNullOrWhiteSpace(args[2]))
                 {
                     return false;
                 }
-                //check if output / folder exists 3
+                //check if colour type exists 3
                 if (String.IsNullOrWhiteSpace(args[3]))
                 {
                     return false;
@@ -108,13 +110,18 @@ namespace ImageProcessor
                 {
                     return false;
                 }
-                //check height 5
+                //check output type 5
                 if (String.IsNullOrWhiteSpace(args[5]))
                 {
                     return false;
                 }
-                //check width 6
+                //check height 6
                 if (String.IsNullOrWhiteSpace(args[6]))
+                {
+                    return false;
+                }
+                //check width 7
+                if (String.IsNullOrWhiteSpace(args[7]))
                 {
                     return false;
                 }
@@ -122,7 +129,7 @@ namespace ImageProcessor
                 //check number images if required 7
                 if (requireNoImg)
                 {
-                    if (String.IsNullOrWhiteSpace(args[7]))
+                    if (String.IsNullOrWhiteSpace(args[8]))
                     {
                         return false;
                     }
@@ -136,31 +143,28 @@ namespace ImageProcessor
         private static void PrintHelp()
         {
             String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
-            helpText += "ImageProcessor [split][merge][rndImage][convert] [input filename][inputFolder folderName]\n"+
-                "  [rgb][r][g][b][bw][gs] [output filename][outputFolder foldername]\n" +
-                "  [png][jpg][jpeg][bmp][ascii] [height] [width] [namescheme]";
+            helpText += "ImageProcessor [split][merge][rndImage][convert] [folderName] [filename]\n" +
+                "  [rgb][r][g][b][bw][gs] [output]\n" +
+                "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";
 
             helpText += "\t split \t\t\t This will split the image into RGB or B/W or Greyscale. \n";
             helpText += "\t merge \t\t\t This will merge back something previously split up. \n";
-            helpText += "\t rndImage \t\t This will generate a noisey image randomly. \n";
+            helpText += "\t rndImage \t\t This will generate a noisey image randomly. Must use inputFolder. \n";
             helpText += "\t convert \t\t This will just convert an image from one format to another. \n";
 
-            helpText += "\t input \t\t\t This specifies the input file, cannot be used in conjuction with inputFolder. \n";
-            helpText += "\t inputFolder \t\t This specifies the input folder path, cannot be used in conjuction with input. \n";
-
+            helpText += "\t folderName \t\t This specifies the input folder path, cannot be used in conjuction with input. Has to be used with rndImage. \n";
+            helpText += "\t filename \t\t This specifies the input filename. (Use $Many to make program open all files in folder, make sure only images are in specified folder) \n";
+            
             helpText += "\t rgb/r/g/b/bw/gs \t This Specifies the colours to use in one of the methods. Only one can be chosen at a time. \n";
 
-            helpText += "\t output \t\t This specifies the output file, cannot be used in conjuction with outputFolder. (inputFolder has to be used with outputFolder). \n";
-            helpText += "\t outputFolder \t\t This specifies the output folder, cannot be used in conjuction with output. (inputFolder has to be used with outputFolder). \n";
-
+            helpText += "\t output \t\t This specifies the output folder (Will use input filenames). \n";
+            
             helpText += "\t png/jpg/jpeg/bmp/ascii  This specifies the output type. ASCII will produce a file using an ASCII based format with the first line containing id info. \n";
 
             helpText += "\t height \t\t This specifies the height that the image must conform to. For merge and split this will internally call the crop function. \n";
             helpText += "\t width \t\t\t This specifies the width that the image must conform to. Fpr merge and split this will internally call the crop function. \n";
-
-            helpText += "\t namescheme \t\t Defines the namescheme for the output files. A single file will contain that name. If nonw is specified defaults will be used. \n";
-
+            
             helpText += "\t numberImages \t\t Only used for rndImage. Defines number of images to produce. Will be asked by the program during operation. \n";
 
             //TODO: JMC Update and fix these Exmaples
