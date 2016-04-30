@@ -157,7 +157,7 @@ public class k_means
     	double clusterMean[] = new double[X[0].length];
     	int listSize = X_Assignments.get(indexM).size();
     	//TODO Fix
-		if (listSize > 0){ //should always be > 0
+		/*if (listSize > 0){ //should always be > 0*/
 			//System.out.println(listSize);
 	        //for each dimension add points together
 	        for (int i=0; i<X[0].length; i++){
@@ -171,10 +171,10 @@ public class k_means
 	        	clusterMean[i] = (1.00 / listSize) * sumOfAllMPoints;
 	        	//System.out.println("k: "+(1.00 / listSize) );
 	        }
-		}
+		/*}
 		else { //hack so stuff does not zero out
 			//clusterMean = m[indexM]; //TODO fix
-		}
+		}*/
     	
     	return clusterMean;
     }
