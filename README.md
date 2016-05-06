@@ -25,6 +25,7 @@ I want to release this tool as something useful in the future, its still a work 
 	- make the code cleaner
 	- get rid of the todos which litter the code base
 	- move actual algorithm to class library so it can be seamlessly integrated into future projects
+	- Add abilit to remove only one channel of colour
 
 
 #OLD stuff
