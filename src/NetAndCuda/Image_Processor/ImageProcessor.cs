@@ -35,16 +35,31 @@ namespace ImageProcessor
         public static void Main(string[] args)
         {
             bool UnknownArgs = true;
-            
             Console.Out.WriteLine("Image Processor Commandline Application by Jason Chalom 2016, Version "+ Assembly.GetExecutingAssembly().GetName().Version);
-
-            if (args.Length > 0 && args[0].ToLower().IndexOf("split", StringComparison.Ordinal) >= 0)
+            
+            if (args.Length > 0 && args[0].ToLower().IndexOf("convert", StringComparison.Ordinal) >= 0)
             {
                 throw new NotImplementedException();
+                //open file/s
+
+                //check if ascii
+                //run merge
+
+                //convert file
+
+                //save file
             }
             else if (args.Length > 0 && args[0].ToLower().IndexOf("merge", StringComparison.Ordinal) >= 0)
             {
                 throw new NotImplementedException();
+                //open file/s specified
+
+                //check if ascii
+                //get values
+
+                //run convert
+
+                //save
             }
             else if (args.Length > 0 && args[0].ToLower().IndexOf("rndImage", StringComparison.Ordinal) >= 0)
             {
@@ -54,19 +69,40 @@ namespace ImageProcessor
                 {
                     //check if folder, has to be folder for rnd
                     //if so run for all items in folder
+                    //since rnd create folder if it does not exist
+                    
+                    //TODO: check if folder is actually real, no input foldername
+                    System.IO.Directory.CreateDirectory(args[4]);
 
+                    //filename
+                    //var filename = args[2];
+                    var outputFolder = args[3];
+                    var colourType = args[2];
+                    var outputFormat = args[4];
 
+                    int noImg = Convert.ToInt32(args[7]); // will fail if not int
+                    int height = Convert.ToInt32(args[5]);
+                    int width = Convert.ToInt32(args[6]);
+
+                    //create rnd images
+                    for (int i = 0; i < noImg; i++)
+                    {
+                        var rndImage = new CreateRndImage(height, width);
+                        
+                        //split if required
+                        var convertedImage = ConvertImage(rndImage, colourType);
+
+                        //save as required format
+                        SaveImage(convertedImage, outputFormat, outputFolder);
+                    }
+                    Console.WriteLine("Completed Operation, %s random images created.", noImg);
                 }
                 else
                 {
                     Console.WriteLine("Error: Missing Inputs.");
                     UnknownArgs = true;
                 }
-            }
-            else if (args.Length > 0 && args[0].ToLower().IndexOf("convert", StringComparison.Ordinal) >= 0)
-            {
-                throw new NotImplementedException();
-            }
+            }            
 
             if (UnknownArgs || args.Length == 0 || args[0].ToLower().IndexOf("?", StringComparison.Ordinal) >= 0 || args[0].ToLower().IndexOf("help", StringComparison.Ordinal) >= 0)
             {
@@ -82,51 +118,41 @@ namespace ImageProcessor
         private static bool AreAllInputsThere(string[] args, bool requireNoImg)
         {
             //arg 0 has been checked by main
-
-            if (args.Length < 6)
+            if (args.Length < 8)
             {
                 return false; //dont need to continue
             }
 
-            if (args.Length >= 6)
+            else //(args.Length >= 8)
             {
-                //check foldername exists 1
                 if (String.IsNullOrWhiteSpace(args[1]))
                 {
                     return false;
                 }
-                //check if filename exists 2
                 if (String.IsNullOrWhiteSpace(args[2]))
                 {
                     return false;
                 }
-                //check if colour type exists 3
                 if (String.IsNullOrWhiteSpace(args[3]))
                 {
                     return false;
                 }
-                //check for output format 4
                 if (String.IsNullOrWhiteSpace(args[4]))
                 {
                     return false;
                 }
-                //check output type 5
                 if (String.IsNullOrWhiteSpace(args[5]))
                 {
                     return false;
                 }
-                //check height 6
                 if (String.IsNullOrWhiteSpace(args[6]))
                 {
                     return false;
                 }
-                //check width 7
                 if (String.IsNullOrWhiteSpace(args[7]))
                 {
                     return false;
                 }
-
-                //check number images if required 7
                 if (requireNoImg)
                 {
                     if (String.IsNullOrWhiteSpace(args[8]))
@@ -142,17 +168,17 @@ namespace ImageProcessor
 
         private static void PrintHelp()
         {
+            //TODO: JMC Make sure it does not wrap
             String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
-            helpText += "ImageProcessor [split][merge][rndImage][convert] [folderName] [filename]\n" +
+            helpText += "ImageProcessor [convert][merge][rndImage] [folderName] [filename]\n" +
                 "  [rgb][r][g][b][bw][gs] [output]\n" +
                 "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";
 
-            helpText += "\t split \t\t\t This will split the image into RGB or B/W or Greyscale. \n";
+            helpText += "\t convert \t\t This will just convert an image from one format to another. Also split the image if thats whats chosen.\n";
             helpText += "\t merge \t\t\t This will merge back something previously split up. \n";
             helpText += "\t rndImage \t\t This will generate a noisey image randomly. Must use inputFolder. \n";
-            helpText += "\t convert \t\t This will just convert an image from one format to another. \n";
-
+            
             helpText += "\t folderName \t\t This specifies the input folder path, cannot be used in conjuction with input. Has to be used with rndImage. \n";
             helpText += "\t filename \t\t This specifies the input filename. (Use $Many to make program open all files in folder, make sure only images are in specified folder) \n";
             
