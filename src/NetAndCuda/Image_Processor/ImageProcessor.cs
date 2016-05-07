@@ -22,6 +22,8 @@ namespace ImageProcessor
      * TODO: add scaling functionality
      * TODO: add more file formats
      * TODO: convert from ASCII
+     * TODO: add filters
+     * TODO: add inversion of colours -simple enough
      * RGB / RGBA problem
      * 
      * ASCII Channels will always be stored per column/row (depeneding on future updates to code) in the RGBA way
@@ -66,7 +68,6 @@ namespace ImageProcessor
             }
             else if (args.Length > 0 && args[0].ToLower().Equals("merge"))
             {
-                throw new NotImplementedException();
                 //open file/s specified
 
                 //check if ascii
@@ -75,6 +76,7 @@ namespace ImageProcessor
                 //run convert - not in first version
 
                 //save
+                throw new NotImplementedException();
             }
             else if (args.Length > 0 && args[0].ToLower().Equals("rndimage"))
             {
