@@ -23,10 +23,14 @@ I want to release this tool as something useful in the future, its still a work 
 	- GUI
 	- tons of bug fixes
 	- make the code cleaner
-	- get rid of the todos which litter the code base
+	- get rid of the todos which litter the code base, put them here or do them!!!
 	- move actual algorithm to class library so it can be seamlessly integrated into future projects
 	- Add abilit to remove only one channel of colour
+Used some StackOverflow help:
+Also: http://www.codeproject.com/Articles/33838/Image-Processing-using-C
+and: http://www.codeproject.com/Articles/9727/Image-Processing-Lab-in-C
 
+Really good sources, for the raw image processing stuff
 
 #OLD stuff
 ## Lab1

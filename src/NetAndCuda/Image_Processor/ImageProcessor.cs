@@ -1,46 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageProcessor
 {
     /*
-     TODO:
-     * Cropper
-     *  T/B
-     *  L/R
-     *  size - check if possible
-     *  
-     * split image colors
-     * b/w
-     * greyscale
-     * convert single into nodes -first line is config
-     * convert triple into nodes -first line is config
-     * generate noisey image
-     * convert to bmp, png, jpg, jpeg
-     * convert to ascii
-     * convert from ascii ie nodes to image either RGB or just one
+     * Jason Chalom 2016, Image Processor
+     * Provide reference to this project when using it for research
      * 
-     * Another class library
-     * Open image into memory array
-
-        6 layers 5 required - for switches
-     
+     * TODO: Make into class library
+     * TODO: Make Unit Tests
+     * TODO: Convert all messages to a correct config structure
+     * TODO: Global vars for things
+     * RGB / RGBA problem
      */
+
     public class ImageProcessor
     {
         public static void Main(string[] args)
         {
-            bool UnknownArgs = true;
+            var helpers = new ImageProcessorHelpers();
+
+            bool UnknownArgs = false;
             Console.Out.WriteLine("Image Processor Commandline Application by Jason Chalom 2016, Version "+ Assembly.GetExecutingAssembly().GetName().Version);
             
-            if (args.Length > 0 && args[0].ToLower().IndexOf("convert", StringComparison.Ordinal) >= 0)
+            if (args.Length > 0 && args[0].ToLower().Equals("convert"))
             {
                 throw new NotImplementedException();
                 //open file/s
+
+                //crop
 
                 //check if ascii
                 //run merge
@@ -49,7 +37,7 @@ namespace ImageProcessor
 
                 //save file
             }
-            else if (args.Length > 0 && args[0].ToLower().IndexOf("merge", StringComparison.Ordinal) >= 0)
+            else if (args.Length > 0 && args[0].ToLower().Equals("merge"))
             {
                 throw new NotImplementedException();
                 //open file/s specified
@@ -61,9 +49,13 @@ namespace ImageProcessor
 
                 //save
             }
-            else if (args.Length > 0 && args[0].ToLower().IndexOf("rndImage", StringComparison.Ordinal) >= 0)
+            else if (args.Length > 0 && args[0].ToLower().Equals("rndImage"))
             {
+                Console.WriteLine("Generate Random Image...");
+                //ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1
+
                 bool areAllInputsThere = AreAllInputsThere(args, true);
+                UnknownArgs = !areAllInputsThere;
 
                 if (areAllInputsThere)
                 {
@@ -75,9 +67,9 @@ namespace ImageProcessor
                     System.IO.Directory.CreateDirectory(args[4]);
 
                     //filename
-                    //var filename = args[2];
-                    var outputFolder = args[3];
-                    var colourType = args[2];
+                    var filename = args[3];
+                    var outputFolder = args[2];
+                    var colourType = args[1];
                     var outputFormat = args[4];
 
                     int noImg = Convert.ToInt32(args[7]); // will fail if not int
@@ -87,13 +79,13 @@ namespace ImageProcessor
                     //create rnd images
                     for (int i = 0; i < noImg; i++)
                     {
-                        var rndImage = new CreateRndImage(height, width);
+                        var rndImage = helpers.CreateRndImage(height, width);
                         
                         //split if required
-                        var convertedImage = ConvertImage(rndImage, colourType);
+                        var convertedImage = helpers.ConvertImageColourScale(rndImage, colourType);
 
                         //save as required format
-                        SaveImage(convertedImage, outputFormat, outputFolder);
+                        helpers.SaveImage(convertedImage, outputFormat, outputFolder, filename);
                     }
                     Console.WriteLine("Completed Operation, %s random images created.", noImg);
                 }
@@ -102,9 +94,14 @@ namespace ImageProcessor
                     Console.WriteLine("Error: Missing Inputs.");
                     UnknownArgs = true;
                 }
-            }            
+            }
+            else
+            {
+                Console.WriteLine("Error: Missing Inputs.");
+                UnknownArgs = true;
+            }
 
-            if (UnknownArgs || args.Length == 0 || args[0].ToLower().IndexOf("?", StringComparison.Ordinal) >= 0 || args[0].ToLower().IndexOf("help", StringComparison.Ordinal) >= 0)
+            if (UnknownArgs || args.Length == 0)
             {
                 //help
                 PrintHelp();
@@ -171,7 +168,7 @@ namespace ImageProcessor
             //TODO: JMC Make sure it does not wrap
             String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
             helpText += "ImageProcessor [convert][merge][rndImage] [folderName] [filename]\n" +
-                "  [rgb][r][g][b][bw][gs] [output]\n" +
+                "  [rgba][rgb][r][g][b][bw][gs] [output]\n" +
                 "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";
 
@@ -194,6 +191,10 @@ namespace ImageProcessor
             helpText += "\t numberImages \t\t Only used for rndImage. Defines number of images to produce. Will be asked by the program during operation. \n";
 
             //TODO: JMC Update and fix these Exmaples
+
+            //ImageProcessor convert [input filename] rgb output [output filename] bmp 100 100
+            //ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1
+
             /*helpText += "\nUsage Examples:\n\n";
             helpText += "ImageProcessor split RGB input [input filename] b output [output filename] ascii\n";
             helpText += "ImageProcessor split BW inputFolder [input foldername] b output [output foldername] png\n\n";
