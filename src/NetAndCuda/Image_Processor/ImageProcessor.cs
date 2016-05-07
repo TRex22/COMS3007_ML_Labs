@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace ImageProcessor
 {
@@ -24,6 +25,7 @@ namespace ImageProcessor
      * TODO: convert from ASCII
      * TODO: add filters
      * TODO: add inversion of colours -simple enough
+     * TODO: proper error messages
      * RGB / RGBA problem
      * 
      * ASCII Channels will always be stored per column/row (depeneding on future updates to code) in the RGBA way
@@ -48,35 +50,41 @@ namespace ImageProcessor
                 var outputFolder = args[3];
                 var outputFilename = args[4];
                 var outputFormat = args[5];
-                
+
+                var fileExtension = Path.GetExtension(fileLocation);
+
+                Bitmap bmpImage = null;
+
                 //open file/s
-                var image = Image.FromFile(fileLocation, true); //TODO add failure if fail to find 
-                var bmpImage = new Bitmap(image);//TODO optimise
+                if (fileExtension != null && fileExtension.Contains(".dat"))
+                {
+                    bmpImage = helpers.LoadAsciiFile(fileLocation);
+                }
+                else if (fileExtension != null) //try an image
+                {
+                    var image = Image.FromFile(fileLocation, true); //TODO add failure if fail to find 
+                    bmpImage = new Bitmap(image);//TODO optimise
+                }
 
                 //crop - not in this version
 
                 //check if ascii - not in this version
                 //run merge - not in this version
 
-                //split if required
-                var convertedImage = helpers.ConvertImageColourScale(bmpImage, colourType);
+                if (bmpImage != null)
+                {
+                    //split if required
+                    var convertedImage = helpers.ConvertImageColourScale(bmpImage, colourType);
 
-                //save as required format
-                helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, outputFilename);
+                    //save as required format
+                    helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, outputFilename);
 
-                Console.WriteLine("Completed Operation, Image converted.");
-            }
-            else if (args.Length > 0 && args[0].ToLower().Equals("merge"))
-            {
-                //open file/s specified
-
-                //check if ascii
-                //get values
-
-                //run convert - not in first version
-
-                //save
-                throw new NotImplementedException();
+                    Console.WriteLine("Completed Operation, Image converted.");
+                }
+                else
+                {
+                    Console.WriteLine("Error Occured Converting Image.");
+                }
             }
             else if (args.Length > 0 && args[0].ToLower().Equals("rndimage"))
             {
@@ -194,7 +202,7 @@ namespace ImageProcessor
         {
             //TODO: JMC Make sure it does not wrap
             String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
-            helpText += "ImageProcessor [convert][merge][rndImage] [folderName] [filename]\n" +
+            helpText += "ImageProcessor [convert][rndImage] [folderName] [filename]\n" +
                 "  [rgba][rgb][r][g][b][bw][gs] [output]\n" +
                 "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";

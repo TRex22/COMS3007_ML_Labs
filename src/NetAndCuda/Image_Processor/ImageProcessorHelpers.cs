@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace ImageProcessor
 {
@@ -10,7 +11,8 @@ namespace ImageProcessor
         {
         }
 
-        public void SaveImage(Bitmap image, string colourType, string outputFormat, string outputFolder, string outputFile)
+        public void SaveImage(Bitmap image, string colourType, string outputFormat, string outputFolder,
+            string outputFile)
         {
             //TODO: check if folder is actually real, no input foldername
             System.IO.Directory.CreateDirectory(outputFolder);
@@ -18,7 +20,7 @@ namespace ImageProcessor
             //[png][jpg][jpeg][bmp][ascii]
             if (outputFormat.ToLower().Equals("png"))
             {
-                var path = String.Format("{0}\\{1}{2}",outputFolder, outputFile, ".png");
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".png");
                 image.Save(path, ImageFormat.Png);
             }
             else if (outputFormat.ToLower().Equals("jpg"))
@@ -57,7 +59,8 @@ namespace ImageProcessor
         {
             int height = image.Height;
             int width = image.Width;
-            String output = String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType, colourType, height, width);
+            String output = String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType,
+                colourType, height, width);
 
             if (colourType.ToLower().Equals("r"))
             {
@@ -125,7 +128,8 @@ namespace ImageProcessor
                     }
                 }
             }
-            else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") || colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
+            else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") ||
+                     colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
             {
                 for (int x = 0; x < image.Width; x++)
                 {
@@ -203,7 +207,7 @@ namespace ImageProcessor
                 {
                     Color pixelColor = input.GetPixel(x, y);
                     //  0.3 · r + 0.59 · g + 0.11 · b
-                    int grey = (int)(pixelColor.R * 0.3 + pixelColor.G * 0.59 + pixelColor.B * 0.11);
+                    int grey = (int) (pixelColor.R*0.3 + pixelColor.G*0.59 + pixelColor.B*0.11);
                     greyscale.SetPixel(x, y, Color.FromArgb(255, grey, grey, grey));
                 }
             }
@@ -329,6 +333,210 @@ namespace ImageProcessor
                     int colourCode2 = rnd.Next(0, 256);
                     int colourCode3 = rnd.Next(0, 256);
                     image.SetPixel(j, i, Color.FromArgb(255, colourCode1, colourCode2, colourCode3));
+                }
+            }
+
+            return image;
+        }
+
+        public Bitmap LoadAsciiFile(string fileLocation)
+        {
+            Bitmap bmpImage;
+            String[] asciiFile;
+            String[] firstLine = null;
+            String rawString = "";
+
+            String fileFormat = null;
+            String colourType = null;
+            int height = 0;
+            int width = 0;
+
+            using (StreamReader sr = new StreamReader(fileLocation))
+            {
+                while (sr.Peek() >= 0)
+                {
+                    //ConvertedImage ascii rb dimensions(height/width): 100 100
+                    String str = sr.ReadLine();
+                    if (firstLine == null)
+                    {
+                        //this is the first line (5 items)
+                        firstLine = str.Split(' ');
+
+                        fileFormat = firstLine[1];
+                        colourType = firstLine[2];
+                        height = Convert.ToInt32(firstLine[4]);
+                        width = Convert.ToInt32(firstLine[5]);
+                    }
+                    else
+                    {
+                        rawString += str + "\n";
+                    }
+                }
+            }
+
+            asciiFile = rawString.Split('\n');
+
+            bmpImage = ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
+
+            return bmpImage;
+        }
+
+        private Bitmap ConvertFromAsciiToBitmap(string[] asciiFile, int height, int width, String colourType)
+        {
+            //format rows = height
+            Bitmap image = new Bitmap(width, height);
+
+            int currentWidth = 0;
+            int currentHeight = 0;
+
+            //loop lines
+            for (int i = 0; i < asciiFile.Length; i++)
+            {
+                //loop columns
+                if (colourType.ToLower().Equals("r"))
+                {
+                    //one column
+                    String[] strVal = asciiFile[i].Split('\n');
+                    int R = Convert.ToInt32(strVal[0]);
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, 0, 0));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("g"))
+                {
+                    //one column
+                    String[] strVal = asciiFile[i].Split('\n');
+                    int G = Convert.ToInt32(strVal[0]);
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, 0, G, 0));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("b"))
+                {
+                    //one column
+                    String[] strVal = asciiFile[i].Split('\n');
+                    int B = Convert.ToInt32(strVal[0]);
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, B, 0, B));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("rg") || colourType.ToLower().Equals("gr"))
+                {
+                    //two column
+                    String[] strVal = asciiFile[i].Split(' ');
+                    int R = Convert.ToInt32(strVal[0]);
+                    int G = Convert.ToInt32(strVal[1].Trim('\n'));
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, G, 0));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("rb") || colourType.ToLower().Equals("br"))
+                {
+                    //two column
+                    String[] strVal = asciiFile[i].Split(' ');
+                    int R = Convert.ToInt32(strVal[0]);
+                    int B = Convert.ToInt32(strVal[1].Trim('\n'));
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, 0, B));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("gb") || colourType.ToLower().Equals("bg"))
+                {
+                    //two column
+                    String[] strVal = asciiFile[i].Split(' ');
+                    int G = Convert.ToInt32(strVal[0]);
+                    int B = Convert.ToInt32(strVal[1].Trim('\n'));
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, 0, G, B));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") ||
+                     colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
+                {
+                    //all three columns
+                    //two column
+                    String[] strVal = asciiFile[i].Split(' ');
+                    int R = Convert.ToInt32(strVal[0]);
+                    int G = Convert.ToInt32(strVal[1]);
+                    int B = Convert.ToInt32(strVal[2].Trim('\n'));
+
+                    image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, G, B));
+
+                    //check and count
+                    if (currentWidth <= width)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else
+                {
+                    //do nothing rgb and also incorrect option
+                    //TODO JMC: add error here
                 }
             }
 
