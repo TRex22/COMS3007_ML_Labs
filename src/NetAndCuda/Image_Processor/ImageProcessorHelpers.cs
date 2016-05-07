@@ -8,40 +8,141 @@ namespace ImageProcessor
     {
         public ImageProcessorHelpers()
         {
-
         }
 
-        public void SaveImage(Bitmap image, string outputFormat, string outputFolder, string outputFile)
+        public void SaveImage(Bitmap image, string colourType, string outputFormat, string outputFolder, string outputFile)
         {
+            //TODO: check if folder is actually real, no input foldername
+            System.IO.Directory.CreateDirectory(outputFolder);
+
             //[png][jpg][jpeg][bmp][ascii]
-            if (outputFolder.ToLower().Equals("png"))
+            if (outputFormat.ToLower().Equals("png"))
             {
-                var path = String.Format("{0}{1}{2}",outputFolder, outputFile, ".png");
+                var path = String.Format("{0}\\{1}{2}",outputFolder, outputFile, ".png");
                 image.Save(path, ImageFormat.Png);
             }
-            else if (outputFolder.ToLower().Equals("jpg"))
+            else if (outputFormat.ToLower().Equals("jpg"))
             {
-                var path = String.Format("{0}{1}{2}", outputFolder, outputFile, ".jpg");
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".jpg");
                 image.Save(path, ImageFormat.Jpeg);
             }
-            else if (outputFolder.ToLower().Equals("jpeg"))
+            else if (outputFormat.ToLower().Equals("jpeg"))
             {
-                var path = String.Format("{0}{1}{2}", outputFolder, outputFile, ".jpeg");
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".jpeg");
                 image.Save(path, ImageFormat.Jpeg);
             }
-            else if (outputFolder.ToLower().Equals("bmp"))
+            else if (outputFormat.ToLower().Equals("bmp"))
             {
-                var path = String.Format("{0}{1}{2}", outputFolder, outputFile, ".bmp");
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".bmp");
                 image.Save(path, ImageFormat.Bmp);
             }
-            else if (outputFolder.ToLower().Equals("ascii"))
+            else if (outputFormat.ToLower().Equals("ascii"))
             {
-                throw new NotImplementedException();
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".dat");
+                SaveToAscii(path, image, colourType);
             }
             else
             {
                 Console.WriteLine("Incorrect file format, please specify the correct file type to save as.");
             }
+        }
+
+        private void SaveToAscii(string path, Bitmap image, String colourType)
+        {
+            var strOutput = ConvertImageToString(image, colourType, "ascii");
+            System.IO.File.WriteAllText(path, strOutput);
+        }
+
+        private string ConvertImageToString(Bitmap image, string colourType, string formatType)
+        {
+            int height = image.Height;
+            int width = image.Width;
+            String output = String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType, colourType, height, width);
+
+            if (colourType.ToLower().Equals("r"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0}\n", pixel.R);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("g"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0}\n", pixel.G);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("b"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0}\n", pixel.B);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("rg") || colourType.ToLower().Equals("gr"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0} {1}\n", pixel.R, pixel.G);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("rb") || colourType.ToLower().Equals("br"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0} {1}\n", pixel.R, pixel.B);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("gb") || colourType.ToLower().Equals("bg"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0} {1}\n", pixel.G, pixel.B);
+                    }
+                }
+            }
+            else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") || colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output += String.Format("{0} {1} {2}\n", pixel.R, pixel.G, pixel.B);
+                    }
+                }
+            }
+            else
+            {
+                //do nothing rgb and also incorrect option
+                //TODO JMC: add error here
+            }
+
+            return output;
         }
 
         public Bitmap ConvertImageColourScale(Bitmap image, string colourType)
@@ -103,7 +204,7 @@ namespace ImageProcessor
                     Color pixelColor = input.GetPixel(x, y);
                     //  0.3 · r + 0.59 · g + 0.11 · b
                     int grey = (int)(pixelColor.R * 0.3 + pixelColor.G * 0.59 + pixelColor.B * 0.11);
-                    greyscale.SetPixel(x, y, Color.FromArgb(pixelColor.A, grey, grey, grey));
+                    greyscale.SetPixel(x, y, Color.FromArgb(255, grey, grey, grey));
                 }
             }
             return greyscale;
@@ -121,25 +222,16 @@ namespace ImageProcessor
                     int R = 0;
                     int G = 0;
                     int B = 0;
+
                     //R
-                    if (pixelColor.R >= 128)
+                    if ((pixelColor.R + pixelColor.G + pixelColor.B) >= 383) //255+3=765
                     {
                         //white
                         R = 255;
-                    }
-                    //G
-                    if (pixelColor.G >= 128)
-                    {
-                        //white
                         G = 255;
-                    }
-                    //B
-                    if (pixelColor.B >= 128)
-                    {
-                        //white
                         B = 255;
                     }
-                    bwBitmap.SetPixel(x, y, Color.FromArgb(pixelColor.A, R, G, B));
+                    bwBitmap.SetPixel(x, y, Color.FromArgb(255, R, G, B));
                 }
             }
             return bwBitmap;
@@ -152,7 +244,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, input.GetPixel(x, y).R, 0, 0));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, input.GetPixel(x, y).R, 0, 0));
                 }
             }
             return outputBmp;
@@ -165,7 +257,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, 0, input.GetPixel(x, y).G, 0));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, 0, input.GetPixel(x, y).G, 0));
                 }
             }
             return outputBmp;
@@ -178,7 +270,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, 0, 0, input.GetPixel(x, y).B));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, 0, 0, input.GetPixel(x, y).B));
                 }
             }
             return outputBmp;
@@ -191,7 +283,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, input.GetPixel(x, y).R, input.GetPixel(x, y).G, 0));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, input.GetPixel(x, y).R, input.GetPixel(x, y).G, 0));
                 }
             }
             return outputBmp;
@@ -204,7 +296,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, input.GetPixel(x, y).R, 0, input.GetPixel(x, y).B));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, input.GetPixel(x, y).R, 0, input.GetPixel(x, y).B));
                 }
             }
             return outputBmp;
@@ -217,7 +309,7 @@ namespace ImageProcessor
             {
                 for (int y = 0; y < input.Height; y++)
                 {
-                    outputBmp.SetPixel(x, y, Color.FromArgb(input.GetPixel(x, y).A, 0, input.GetPixel(x, y).G, input.GetPixel(x, y).B));
+                    outputBmp.SetPixel(x, y, Color.FromArgb(255, 0, input.GetPixel(x, y).G, input.GetPixel(x, y).B));
                 }
             }
             return outputBmp;

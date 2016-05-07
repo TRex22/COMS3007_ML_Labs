@@ -15,6 +15,8 @@ I have made a commandline application in C# called ImageProcessor (should be pre
 for some machine learning experiments.
 I want to release this tool as something useful in the future, its still a work in progress and has many TODOs.
 
+ImageProcessor is a really cool program (in my humble opionion, Im a nerd) but I developed it very quickly which means its probably quite unstable and prone to crashing. If bugs are found please add an issue on GitHub, that would be much appreciated. Versions after 0.1 are meant for release. 0.1 is only meant to be used for a very specific machine learning project I am working on - which has a strict deadline.
+
 ##TODOS:
 #ImageProcessor:
 	- perhaps clustering for images

@@ -1,0 +1,1 @@
+﻿ImageProcessor rndImage rgb c:\data rndImg png 100 100 1
