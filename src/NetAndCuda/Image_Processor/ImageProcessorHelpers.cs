@@ -390,7 +390,7 @@ namespace ImageProcessor
             int currentHeight = 0;
 
             //loop lines
-            for (int i = 0; i < asciiFile.Length; i++)
+            for (int i = 0; i < asciiFile.Length-1; i++)
             {
                 //loop columns
                 if (colourType.ToLower().Equals("r"))
@@ -402,7 +402,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, 0, 0));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -421,7 +421,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, 0, G, 0));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -440,7 +440,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, B, 0, B));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -460,7 +460,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, G, 0));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -477,10 +477,11 @@ namespace ImageProcessor
                     int R = Convert.ToInt32(strVal[0]);
                     int B = Convert.ToInt32(strVal[1].Trim('\n'));
 
+                    //Console.WriteLine("cW: "+currentWidth+" width: "+width+" cH: "+currentHeight+" height: "+height); //TODO Cleanup when done
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, 0, B));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -500,7 +501,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, 0, G, B));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
@@ -523,7 +524,7 @@ namespace ImageProcessor
                     image.SetPixel(currentWidth, currentHeight, Color.FromArgb(255, R, G, B));
 
                     //check and count
-                    if (currentWidth <= width)
+                    if (currentWidth < width-1)
                     {
                         currentWidth++;
                     }
