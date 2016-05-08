@@ -28,6 +28,9 @@ namespace ImageProcessor
      * TODO: proper error messages
      * TODO: reflections
      * TODO: rotations
+     * TODO: Batch processing
+     * TODO: Pixel destruction
+     * TODO: noise addition gauss, poisson etc...
      * RGB / RGBA problem
      * 
      * ASCII Channels will always be stored per column/row (depeneding on future updates to code) in the RGBA way
