@@ -26,6 +26,8 @@ namespace ImageProcessor
      * TODO: add filters
      * TODO: add inversion of colours -simple enough
      * TODO: proper error messages
+     * TODO: reflections
+     * TODO: rotations
      * RGB / RGBA problem
      * 
      * ASCII Channels will always be stored per column/row (depeneding on future updates to code) in the RGBA way
@@ -45,6 +47,7 @@ namespace ImageProcessor
             {
                 Console.WriteLine("Convert Image...");
                 //USAGE: ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp //100 100 - thats for crop a bit complicated to implement
+                
                 var fileLocation = args[1];
                 var colourType = args[2];
                 var outputFolder = args[3];
@@ -53,18 +56,7 @@ namespace ImageProcessor
 
                 var fileExtension = Path.GetExtension(fileLocation);
 
-                Bitmap bmpImage = null;
-
-                //open file/s
-                if (fileExtension != null && fileExtension.Contains(".dat"))
-                {
-                    bmpImage = helpers.LoadAsciiFile(fileLocation);
-                }
-                else if (fileExtension != null) //try an image
-                {
-                    var image = Image.FromFile(fileLocation, true); //TODO add failure if fail to find 
-                    bmpImage = new Bitmap(image);//TODO optimise
-                }
+                Bitmap bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
 
                 //crop - not in this version
 
@@ -130,9 +122,75 @@ namespace ImageProcessor
                     UnknownArgs = true;
                 }
             }
+            else if (args.Length > 0 && args[0].ToLower().Equals("scale"))
+            {
+                //scaling
+                Console.WriteLine("Scaling Image Using Given Dimensions...");
+                //ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 (height width)
+
+                if (args.Length == 7)
+                {
+                    var fileLocation = args[1];
+                    var outputFolder  = args[2];
+                    var outputFilename  = args[3];
+                    var fileFormat = args[4];
+                    var height = Convert.ToInt32(args[5]);
+                    var width = Convert.ToInt32(args[6]);
+
+                    var fileExtension = Path.GetExtension(fileLocation);
+                    Bitmap bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
+
+                    if (bmpImage != null)
+                    {
+                        Bitmap resizedImage = new Bitmap(bmpImage, new Size(width, height));
+
+                        //save as required format
+                        helpers.SaveImage(resizedImage, "RGB", fileFormat, outputFolder, outputFilename);
+
+                        Console.WriteLine("Completed Operation, Image converted.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Error: Missing Inputs In Scaling.");
+                    UnknownArgs = true;
+                }
+            }
+            else if (args.Length > 0 && args[0].ToLower().Equals("crop"))
+            {
+                throw new NotImplementedException();
+            }
+            else if (args.Length > 0 && args[0].ToLower().Equals("compare"))
+            {
+                //USAGE: //ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2]
+                var file1Location = args[1];
+                var file1Extension = Path.GetExtension(file1Location);
+                var file2Location = args[2];
+                var file2Extension = Path.GetExtension(file2Location);
+
+                Console.WriteLine("\nImage 1: " + file1Location);
+                Console.WriteLine("Image 2: " + file2Location + "\n");
+
+                Bitmap bmpImage1 = helpers.OpenImageFile(file1Extension, file1Location);
+                Bitmap bmpImage2 = helpers.OpenImageFile(file2Extension, file2Location);
+
+                if (bmpImage1 == null || bmpImage2 == null)
+                {
+                    Console.WriteLine("One or both the images are either null or have not been loaded correctly due to an error.");
+                }
+                else if (helpers.CompareMemCmp(bmpImage1, bmpImage2))
+                {
+                    //they are the same YAY!
+                    Console.WriteLine("Image 1 is identical to Image 2.");
+                }
+                else
+                {
+                    Console.WriteLine("Image 1 is not identical to Image 2.");
+                }
+            }
             else
             {
-                Console.WriteLine("Error: Missing Inputs.");
+                Console.WriteLine("Error: Missing Inputs In First Argument.");
                 UnknownArgs = true;
             }
 
@@ -142,8 +200,8 @@ namespace ImageProcessor
                 PrintHelp();
             }
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadLine();
+            //Console.WriteLine("Press any key to continue...");
+            //Console.ReadLine();
         }
 
         //only checks if they exist, corectness is done when saving etc ...
@@ -202,8 +260,8 @@ namespace ImageProcessor
         {
             //TODO: JMC Make sure it does not wrap
             String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
-            helpText += "ImageProcessor [convert][rndImage] [folderName] [filename]\n" +
-                "  [rgba][rgb][r][g][b][bw][gs] [output]\n" +
+            helpText += "ImageProcessor [convert][rndImage][scale][crop][compare] [input filename and location]\n" +
+                "  [rgba][rgb][r][g][b][bw][gs] [output foldername] [filename]\n" +
                 "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";
 /*
@@ -226,18 +284,12 @@ namespace ImageProcessor
             helpText += "\t numberImages \t\t Only used for rndImage. Defines number of images to produce. Will be asked by the program during operation. \n";*/
 
             //TODO: JMC Update and fix these Exmaples
+            helpText += "\nUsage Examples:\n\n";
+            helpText += "ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100 \n";
+            helpText += "ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1 \n";
+            helpText += "ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
+            helpText += "ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2] \n";
 
-            //ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100
-            //ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1
-
-            /*helpText += "\nUsage Examples:\n\n";
-            helpText += "ImageProcessor split RGB input [input filename] b output [output filename] ascii\n";
-            helpText += "ImageProcessor split BW inputFolder [input foldername] b output [output foldername] png\n\n";
-            helpText += "ImageProcessor merge RGB input [input filename] b output [output filename] ascii\n";
-            helpText += "ImageProcessor merge BW inputFolder [input foldername] b output [output foldername] png\n\n";
-            helpText += "ImageProcessor rndImage [number of files] output [output foldername] name [namescheme]\n\n";
-            helpText += "ImageProcessor convert [input filename] output [output filename] bmp\n";
-            helpText += "ImageProcessor convert [input filename] output [output filename] bmp file1\n";*/
             Console.Out.WriteLine(helpText);
         }
 

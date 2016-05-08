@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace ImageProcessor
 {
@@ -542,6 +543,55 @@ namespace ImageProcessor
             }
 
             return image;
+        }
+
+        public Bitmap OpenImageFile(String fileExtension, String fileLocation)
+        {
+            Bitmap bmpImage = null;
+            //open file/s
+            if (fileExtension != null && fileExtension.Contains(".dat"))
+            {
+                //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
+                bmpImage = LoadAsciiFile(fileLocation);
+                //quick fix
+                bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
+            }
+            else if (fileExtension != null) //try an image
+            {
+                var image = Image.FromFile(fileLocation, true); //TODO add failure if fail to find 
+                bmpImage = new Bitmap(image);//TODO optimise
+            }
+
+            return bmpImage;
+        }
+
+        //got it from: http://stackoverflow.com/questions/2031217/what-is-the-fastest-way-i-can-compare-two-equal-size-bitmaps-to-determine-whethe
+        [DllImport("msvcrt.dll")]
+        public static extern int memcmp(IntPtr b1, IntPtr b2, long count);
+
+        public bool CompareMemCmp(Bitmap b1, Bitmap b2)
+        {
+            if ((b1 == null) != (b2 == null)) return false;
+            if (b1.Size != b2.Size) return false;
+
+            var bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            try
+            {
+                IntPtr bd1scan0 = bd1.Scan0;
+                IntPtr bd2scan0 = bd2.Scan0;
+
+                int stride = bd1.Stride;
+                int len = stride * b1.Height;
+
+                return memcmp(bd1scan0, bd2scan0, len) == 0;
+            }
+            finally
+            {
+                b1.UnlockBits(bd1);
+                b2.UnlockBits(bd2);
+            }
         }
     }
 }
