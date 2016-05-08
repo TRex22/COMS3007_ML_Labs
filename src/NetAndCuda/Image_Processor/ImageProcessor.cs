@@ -32,6 +32,7 @@ namespace ImageProcessor
      * TODO: batch script i.e run convert and scale
      * TODO: refactor code
      * TODO: refactor how args are processed
+     * TODO: rgb rbg have a thing which converts all possible inputs into readable form
      * 
      * RGB / RGBA problem
      * 

@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ImageProcessor
 {
@@ -53,17 +54,18 @@ namespace ImageProcessor
 
         private void SaveToAscii(string path, Bitmap image, String colourType)
         {
-            var strOutput = ConvertImageToString(image, colourType, "ascii");
+            var strBuilderOutput = ConvertImageToString(image, colourType, "ascii");
+            var strOutput = strBuilderOutput.ToString();
             System.IO.File.WriteAllText(path, strOutput);
         }
 
-        private string ConvertImageToString(Bitmap image, string colourType, string formatType)
+        private StringBuilder ConvertImageToString(Bitmap image, string colourType, string formatType)
         {
-            //TODO: optimise with StringBuilder
             int height = image.Height;
             int width = image.Width;
-            String output = String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType,
-                colourType, height, width);
+
+            StringBuilder output = new StringBuilder();
+            output.Append(String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType, colourType, height, width));
 
             if (colourType.ToLower().Equals("r"))
             {
@@ -72,7 +74,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0}\n", pixel.R);
+                        output.Append(String.Format("{0}\n", pixel.R));
                     }
                 }
             }
@@ -83,7 +85,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0}\n", pixel.G);
+                        output.Append(String.Format("{0}\n", pixel.G));
                     }
                 }
             }
@@ -94,7 +96,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0}\n", pixel.B);
+                        output.Append(String.Format("{0}\n", pixel.B));
                     }
                 }
             }
@@ -105,7 +107,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0} {1}\n", pixel.R, pixel.G);
+                        output.Append(String.Format("{0} {1}\n", pixel.R, pixel.G));
                     }
                 }
             }
@@ -116,7 +118,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0} {1}\n", pixel.R, pixel.B);
+                        output.Append(String.Format("{0} {1}\n", pixel.R, pixel.B));
                     }
                 }
             }
@@ -127,7 +129,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0} {1}\n", pixel.G, pixel.B);
+                        output.Append(String.Format("{0} {1}\n", pixel.G, pixel.B));
                     }
                 }
             }
@@ -139,7 +141,7 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output += String.Format("{0} {1} {2}\n", pixel.R, pixel.G, pixel.B);
+                        output.Append(String.Format("{0} {1} {2}\n", pixel.R, pixel.G, pixel.B));
                     }
                 }
             }
@@ -347,7 +349,7 @@ namespace ImageProcessor
             Bitmap bmpImage;
             String[] asciiFile;
             String[] firstLine = null;
-            String rawString = "";
+            StringBuilder builder = new StringBuilder();
 
             String fileFormat = null;
             String colourType = null;
@@ -372,12 +374,54 @@ namespace ImageProcessor
                     }
                     else
                     {
-                        rawString += str + "\n";
+                        builder.Append(str + "\n");
+                    }
+                }
+            }
+            String file = builder.ToString();
+            asciiFile = file.Split('\n');
+
+            bmpImage = ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
+
+            return bmpImage;
+        }
+
+        public Bitmap LoadAsciiFileDoAndInterestingThing(string fileLocation)
+        {
+            Bitmap bmpImage;
+            String[] asciiFile;
+            String[] firstLine = null;
+            StringBuilder builder = new StringBuilder();
+
+            String fileFormat = null;
+            String colourType = null;
+            int height = 0;
+            int width = 0;
+
+            using (StreamReader sr = new StreamReader(fileLocation))
+            {
+                while (sr.Peek() >= 0)
+                {
+                    //ConvertedImage ascii rb dimensions(height/width): 100 100
+                    String str = sr.ReadLine();
+                    if (firstLine == null)
+                    {
+                        //this is the first line (5 items)
+                        firstLine = str.Split(' ');
+
+                        fileFormat = firstLine[1];
+                        colourType = firstLine[2];
+                        height = Convert.ToInt32(firstLine[4]);
+                        width = Convert.ToInt32(firstLine[5]);
+                    }
+                    else
+                    {
+                        builder.Append(str + "\n");
                     }
                 }
             }
 
-            asciiFile = rawString.Split('\n');
+            asciiFile = builder.ToString().Split('\n');
 
             bmpImage = ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
 
