@@ -565,6 +565,24 @@ namespace ImageProcessor
             return bmpImage;
         }
 
+        public Bitmap ScaleImage(Bitmap bmpImage, int height, int width)
+        {
+            Bitmap resizedImage = new Bitmap(bmpImage, new Size(width, height));
+            return resizedImage;
+        }
+
+        public Bitmap CropImage(Bitmap bmpImage, int height, int width)
+        {
+            int x = bmpImage.Width / 2 - width / 2;
+            int y = bmpImage.Height / 2 - height / 2;
+
+            Rectangle cropArea = new Rectangle(x, y, width, height);
+
+            Bitmap croppedImage = bmpImage.Clone(cropArea, bmpImage.PixelFormat);
+
+            return croppedImage;
+        }
+
         //got it from: http://stackoverflow.com/questions/2031217/what-is-the-fastest-way-i-can-compare-two-equal-size-bitmaps-to-determine-whethe
         [DllImport("msvcrt.dll")]
         public static extern int memcmp(IntPtr b1, IntPtr b2, long count);

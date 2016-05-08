@@ -142,12 +142,12 @@ namespace ImageProcessor
 
                     if (bmpImage != null)
                     {
-                        Bitmap resizedImage = new Bitmap(bmpImage, new Size(width, height));
+                        Bitmap resizedImage = helpers.ScaleImage(bmpImage, height, width);
 
                         //save as required format
                         helpers.SaveImage(resizedImage, "RGB", fileFormat, outputFolder, outputFilename);
 
-                        Console.WriteLine("Completed Operation, Image converted.");
+                        Console.WriteLine("Completed Operation, Image Scaled.");
                     }
                 }
                 else
@@ -158,7 +158,37 @@ namespace ImageProcessor
             }
             else if (args.Length > 0 && args[0].ToLower().Equals("crop"))
             {
-                throw new NotImplementedException();
+                //cropping
+                Console.WriteLine("Crop Image Using Given Dimensions...");
+                //ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 (height width)
+                //TODO: make sure dimensions are less than image size, this is not scaling
+                if (args.Length == 7)
+                {
+                    var fileLocation = args[1];
+                    var outputFolder = args[2];
+                    var outputFilename = args[3];
+                    var fileFormat = args[4];
+                    var height = Convert.ToInt32(args[5]);
+                    var width = Convert.ToInt32(args[6]);
+
+                    var fileExtension = Path.GetExtension(fileLocation);
+                    Bitmap bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
+
+                    if (bmpImage != null)
+                    {
+                        Bitmap croppedImage = helpers.CropImage(bmpImage, height, width);
+
+                        //save as required format
+                        helpers.SaveImage(croppedImage, "RGB", fileFormat, outputFolder, outputFilename);
+
+                        Console.WriteLine("Completed Operation, Image Cropped.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Error: Missing Inputs In Cropping.");
+                    UnknownArgs = true;
+                }
             }
             else if (args.Length > 0 && args[0].ToLower().Equals("compare"))
             {
@@ -288,6 +318,7 @@ namespace ImageProcessor
             helpText += "ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100 \n";
             helpText += "ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1 \n";
             helpText += "ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
+            helpText += "ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
             helpText += "ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2] \n";
 
             Console.Out.WriteLine(helpText);
