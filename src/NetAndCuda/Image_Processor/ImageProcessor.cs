@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Reflection;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 
 namespace ImageProcessor
 {
@@ -32,6 +29,10 @@ namespace ImageProcessor
      * TODO: Batch processing
      * TODO: Pixel destruction
      * TODO: noise addition gauss, poisson etc...
+     * TODO: batch script i.e run convert and scale
+     * TODO: refactor code
+     * TODO: refactor how args are processed
+     * 
      * RGB / RGBA problem
      * 
      * ASCII Channels will always be stored per column/row (depeneding on future updates to code) in the RGBA way
@@ -40,11 +41,14 @@ namespace ImageProcessor
 
     public class ImageProcessor
     {
+        private static readonly ImageProcessorHelpers Helpers = new ImageProcessorHelpers();
+
         public static void Main(string[] args)
         {
-            Console.Out.WriteLine("Image Processor Commandline Application by Jason Chalom 2016, Version "+ Assembly.GetExecutingAssembly().GetName().Version);
+            Console.Out.WriteLine("Image Processor Commandline Application by Jason Chalom 2016, Version " +
+                                  Assembly.GetExecutingAssembly().GetName().Version);
 
-            if (args[0].ToLower().Equals("batch"))
+            if (args.Length > 0 && args[0].ToLower().Equals("batch"))
             {
                 RunBatch(args);
             }
@@ -52,7 +56,7 @@ namespace ImageProcessor
             {
                 RunArguments(args);
             }
-            
+
 
             //Console.WriteLine("Press any key to continue...");
             //Console.ReadLine();
@@ -61,60 +65,137 @@ namespace ImageProcessor
         private static void RunBatch(string[] args)
         {
             //USAGE for batch: ImageProcessor batch [input folder] [output folder] scale bmp 100 100 <(height width)> 
+            Console.WriteLine("Running Batch Process...");
+            var failDueToInputOutputMatch = false;
 
             var inputFolder = args[1];
-            var outputFolder  = args[2];
+            var outputFolder = args[2];
             var mainArg = args[3];
 
-            string[] inputFiles = 
+            if (inputFolder.Contains(outputFolder) || outputFolder.Contains(inputFolder))
+            {
+                //cannot be the same folder
+                failDueToInputOutputMatch = true;
+                Console.WriteLine("Error. Cannot have the same input and output folder.");
+            }
 
-            String[] newArgs = new String[8];
+            var inputFiles = Helpers.GetFileNames(inputFolder, "*.*");
+
+            var newArgs = new string[8];
             // [convert][rndImage][scale][crop][compare] 
-            
-            if (mainArg.ToLower().Equals("convert"))
-            {
-                //ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100
-                newArgs[0] = "convert";
-                //newArgs[1] = 
-            }
-            else if (mainArg.ToLower().Equals("rndimage"))
-            {
-                //ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1
-                newArgs[0] = "rndimage";
 
+            if (mainArg.ToLower().Equals("convert") && !failDueToInputOutputMatch)
+            {
+                //ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp
+                //USAGE for batch: ImageProcessor batch [input folder] [output folder] convert rgb bmp 100 100
+                newArgs[0] = "convert";
+
+                newArgs[2] = args[5];
+                newArgs[3] = outputFolder;
+                newArgs[5] = args[8];
+
+                foreach (string t in inputFiles)
+                {
+                    if (t.Contains(".png") || t.Contains(".bmp") ||
+                        t.Contains(".jpg") || t.Contains(".jpeg") ||
+                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                    {
+                        var fileName = t;
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+
+                        newArgs[1] = fileLocation;
+                        newArgs[4] = fileName; //TODO namescheme
+
+                        RunArguments(newArgs);
+                    }//else ignore file
+                    else
+                    {
+                        Console.WriteLine("Ignored File: " + t);
+                    }
+                }
             }
-            else if (mainArg.ToLower().Equals("scale"))
+            else if (mainArg.ToLower().Equals("rndimage") && !failDueToInputOutputMatch)
+            {
+                Console.WriteLine("Error. rndImage does not work with batch argument.");
+            }
+            else if (mainArg.ToLower().Equals("scale") && !failDueToInputOutputMatch)
             {
                 //ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)>
+                //USAGE for batch: ImageProcessor batch [input folder] [output folder] scale bmp 100 100 <(height width)>
                 newArgs[0] = "scale";
+                newArgs[2] = outputFolder;
+                newArgs[4] = args[4];
+                newArgs[5] = args[5];
+                newArgs[6] = args[6];
 
+                foreach (string t in inputFiles)
+                {
+                    if (t.Contains(".png") || t.Contains(".bmp") ||
+                        t.Contains(".jpg") || t.Contains(".jpeg") ||
+                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                    {
+                        var fileName = t;
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+
+                        newArgs[1] = fileLocation;
+                        newArgs[3] = fileName;
+
+                        RunArguments(newArgs);
+                    }//else ignore file
+                    else
+                    {
+                        Console.WriteLine("Ignored File: " + t);
+                    }
+                }
             }
-            else if (mainArg.ToLower().Equals("crop"))
+            else if (mainArg.ToLower().Equals("crop") && !failDueToInputOutputMatch)
             {
                 //ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)>
+                //USAGE for batch: ImageProcessor batch [input folder] [output folder] crop bmp 100 100 <(height width)>
                 newArgs[0] = "crop";
+                newArgs[2] = outputFolder;
+                newArgs[4] = args[4];
+                newArgs[5] = args[5];
+                newArgs[6] = args[6];
 
+                foreach (string t in inputFiles)
+                {
+                    if (t.Contains(".png") || t.Contains(".bmp") ||
+                        t.Contains(".jpg") || t.Contains(".jpeg") ||
+                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                    {
+                        var fileName = t;
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+
+                        newArgs[1] = fileLocation;
+                        newArgs[3] = fileName;
+
+                        RunArguments(newArgs);
+                    }//else ignore file
+                    else
+                    {
+                        Console.WriteLine("Ignored File: "+t);
+                    }
+                }
             }
-            else if (mainArg.ToLower().Equals("compare"))
+            else if (mainArg.ToLower().Equals("compare") && !failDueToInputOutputMatch)
             {
                 //ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2] 
+                //USAGE for batch: ImageProcessor batch [input folder] [output folder] 
                 newArgs[0] = "compare";
-
+                throw new NotImplementedException(); //TODO implement batch compare
             }
             else
             {
                 Console.WriteLine("Error: Missing Inputs In First Argument.");
                 PrintHelp();
             }
-
-            throw new NotImplementedException();
         }
 
         private static void RunArguments(string[] args)
         {
             //All single arguments, batches are handled in main
-            var helpers = new ImageProcessorHelpers();
-            bool UnknownArgs = false;
+            var UnknownArgs = false;
 
             if (args.Length > 0 && args[0].ToLower().Equals("convert"))
             {
@@ -129,7 +210,7 @@ namespace ImageProcessor
 
                 var fileExtension = Path.GetExtension(fileLocation);
 
-                var bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
+                var bmpImage = Helpers.OpenImageFile(fileExtension, fileLocation);
 
                 //crop - not in this version
 
@@ -139,10 +220,10 @@ namespace ImageProcessor
                 if (bmpImage != null)
                 {
                     //split if required
-                    var convertedImage = helpers.ConvertImageColourScale(bmpImage, colourType);
+                    var convertedImage = Helpers.ConvertImageColourScale(bmpImage, colourType);
 
                     //save as required format
-                    helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, outputFilename);
+                    Helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, outputFilename);
 
                     Console.WriteLine("Completed Operation, Image converted.");
                 }
@@ -156,7 +237,7 @@ namespace ImageProcessor
                 Console.WriteLine("Generate Random Image...");
                 //ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1
 
-                bool areAllInputsThere = AreAllInputsThere(args, true);
+                var areAllInputsThere = AreAllInputsThere(args, true);
                 UnknownArgs = !areAllInputsThere;
 
                 if (areAllInputsThere)
@@ -171,21 +252,21 @@ namespace ImageProcessor
                     var colourType = args[1];
                     var outputFormat = args[4];
 
-                    int noImg = Convert.ToInt32(args[7]); // will fail if not int
-                    int height = Convert.ToInt32(args[5]);
-                    int width = Convert.ToInt32(args[6]);
+                    var noImg = Convert.ToInt32(args[7]); // will fail if not int
+                    var height = Convert.ToInt32(args[5]);
+                    var width = Convert.ToInt32(args[6]);
 
                     //create rnd images
-                    for (int i = 0; i < noImg; i++)
+                    for (var i = 0; i < noImg; i++)
                     {
-                        var rndImage = helpers.CreateRndImage(height, width);
+                        var rndImage = Helpers.CreateRndImage(height, width);
 
                         //split if required
-                        var convertedImage = helpers.ConvertImageColourScale(rndImage, colourType);
+                        var convertedImage = Helpers.ConvertImageColourScale(rndImage, colourType);
 
                         //save as required format
-                        var filenameNumbered = String.Format("{0}_{1}", filename, i + 1);
-                        helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, filenameNumbered);
+                        var filenameNumbered = string.Format("{0}_{1}", filename, i + 1);
+                        Helpers.SaveImage(convertedImage, colourType, outputFormat, outputFolder, filenameNumbered);
                     }
                     Console.WriteLine("Completed Operation, {0} random images created.", noImg);
                 }
@@ -211,14 +292,14 @@ namespace ImageProcessor
                     var width = Convert.ToInt32(args[6]);
 
                     var fileExtension = Path.GetExtension(fileLocation);
-                    var bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
+                    var bmpImage = Helpers.OpenImageFile(fileExtension, fileLocation);
 
                     if (bmpImage != null)
                     {
-                        Bitmap resizedImage = helpers.ScaleImage(bmpImage, height, width);
+                        var resizedImage = Helpers.ScaleImage(bmpImage, height, width);
 
                         //save as required format
-                        helpers.SaveImage(resizedImage, "RGB", fileFormat, outputFolder, outputFilename);
+                        Helpers.SaveImage(resizedImage, "RGB", fileFormat, outputFolder, outputFilename);
 
                         Console.WriteLine("Completed Operation, Image Scaled.");
                     }
@@ -245,14 +326,14 @@ namespace ImageProcessor
                     var width = Convert.ToInt32(args[6]);
 
                     var fileExtension = Path.GetExtension(fileLocation);
-                    var bmpImage = helpers.OpenImageFile(fileExtension, fileLocation);
+                    var bmpImage = Helpers.OpenImageFile(fileExtension, fileLocation);
 
                     if (bmpImage != null)
                     {
-                        Bitmap croppedImage = helpers.CropImage(bmpImage, height, width);
+                        var croppedImage = Helpers.CropImage(bmpImage, height, width);
 
                         //save as required format
-                        helpers.SaveImage(croppedImage, "RGB", fileFormat, outputFolder, outputFilename);
+                        Helpers.SaveImage(croppedImage, "RGB", fileFormat, outputFolder, outputFilename);
 
                         Console.WriteLine("Completed Operation, Image Cropped.");
                     }
@@ -274,14 +355,15 @@ namespace ImageProcessor
                 Console.WriteLine("\nImage 1: " + file1Location);
                 Console.WriteLine("Image 2: " + file2Location + "\n");
 
-                var bmpImage1 = helpers.OpenImageFile(file1Extension, file1Location);
-                var bmpImage2 = helpers.OpenImageFile(file2Extension, file2Location);
+                var bmpImage1 = Helpers.OpenImageFile(file1Extension, file1Location);
+                var bmpImage2 = Helpers.OpenImageFile(file2Extension, file2Location);
 
                 if (bmpImage1 == null || bmpImage2 == null)
                 {
-                    Console.WriteLine("One or both the images are either null or have not been loaded correctly due to an error.");
+                    Console.WriteLine(
+                        "One or both the images are either null or have not been loaded correctly due to an error.");
                 }
-                else if (helpers.CompareMemCmp(bmpImage1, bmpImage2))
+                else if (Helpers.CompareMemCmp(bmpImage1, bmpImage2))
                 {
                     //they are the same YAY!
                     Console.WriteLine("Image 1 is identical to Image 2.");
@@ -313,41 +395,40 @@ namespace ImageProcessor
                 return false; //dont need to continue
             }
 
-            else if (args.Length >= 7)
+            if (args.Length >= 7)
             {
-                if (String.IsNullOrWhiteSpace(args[1]))
+                if (string.IsNullOrWhiteSpace(args[1]))
                 {
                     return false;
                 }
-                if (String.IsNullOrWhiteSpace(args[2]))
+                if (string.IsNullOrWhiteSpace(args[2]))
                 {
                     return false;
                 }
-                if (String.IsNullOrWhiteSpace(args[3]))
+                if (string.IsNullOrWhiteSpace(args[3]))
                 {
                     return false;
                 }
-                if (String.IsNullOrWhiteSpace(args[4]))
+                if (string.IsNullOrWhiteSpace(args[4]))
                 {
                     return false;
                 }
-                if (String.IsNullOrWhiteSpace(args[5]))
+                if (string.IsNullOrWhiteSpace(args[5]))
                 {
                     return false;
                 }
-                if (String.IsNullOrWhiteSpace(args[6]))
+                if (string.IsNullOrWhiteSpace(args[6]))
                 {
                     return false;
                 }
 
                 if (requireNoImg)
                 {
-                    if (String.IsNullOrWhiteSpace(args[7]))
+                    if (string.IsNullOrWhiteSpace(args[7]))
                     {
                         return false;
                     }
                 }
-                
             }
 
             return true;
@@ -356,11 +437,11 @@ namespace ImageProcessor
         private static void PrintHelp()
         {
             //TODO: JMC Make sure it does not wrap
-            String helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
+            var helpText = "Processes Images for Use in Applications Such as Deep Learning.\n\n";
             helpText += "ImageProcessor [batch] [batch size]" +
                         " [convert][rndImage][scale][crop][compare] [input filename and location]\n" +
-                "  [rgba][rgb][r][g][b][bw][gs] [output foldername] [filename]\n" +
-                "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
+                        "  [rgba][rgb][r][g][b][bw][gs] [output foldername] [filename]\n" +
+                        "  [png][jpg][jpeg][bmp][ascii] [height] [width] [numberImages]";
             helpText += "\n\nSwitches:\n";
 /*
             helpText += "\t convert \t\t This will just convert an image from one format to another. Also split the image if thats whats chosen.\n";
@@ -383,15 +464,18 @@ namespace ImageProcessor
             helpText += "Note: Batch does not work with rndImage. \n";
             //TODO: JMC Update and fix these Exmaples
             helpText += "\nUsage Examples:\n\n";
-            helpText += "ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100 \n";
+            helpText +=
+                "ImageProcessor convert [input filename and location] rgb [output foldername] [filename] bmp 100 100 \n";
             helpText += "ImageProcessor rndImage rgb [output foldername] [filename] png 100 100 1 \n";
-            helpText += "ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
-            helpText += "ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
-            helpText += "ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2] \n";
+            helpText +=
+                "ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
+            helpText +=
+                "ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 <(height width)> \n";
+            helpText +=
+                "ImageProcessor compare [input filename and location of image 1] [input filename and location of image 2] \n";
             helpText += "ImageProcessor batch [input folder] [output folder] scale bmp 100 100 <(height width)> \n";
 
             Console.Out.WriteLine(helpText);
         }
-
     }
 }

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ImageProcessor
@@ -39,7 +40,7 @@ namespace ImageProcessor
                 var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".bmp");
                 image.Save(path, ImageFormat.Bmp);
             }
-            else if (outputFormat.ToLower().Equals("ascii"))
+            else if (outputFormat.ToLower().Equals("ascii") || outputFormat.ToLower().Equals("dat"))
             {
                 var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".dat");
                 SaveToAscii(path, image, colourType);
@@ -58,6 +59,7 @@ namespace ImageProcessor
 
         private string ConvertImageToString(Bitmap image, string colourType, string formatType)
         {
+            //TODO: optimise with StringBuilder
             int height = image.Height;
             int width = image.Width;
             String output = String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType,
@@ -613,11 +615,11 @@ namespace ImageProcessor
         }
 
         //http://stackoverflow.com/questions/7140081/how-to-get-only-filenames-within-a-directory-using-c
-        public static string[] GetFileNames(string path, string filter)
+        public string[] GetFileNames(string path, string filter)
         {
-            string[] files = Directory.GetFiles(path, filter);
-            for (int i = 0; i < files.Length; i++)
-                files[i] = Path.GetFileName(files[i]);
+            string[] files = Directory.GetFiles(path, filter)
+                                     .Select(Path.GetFileName)
+                                     .ToArray();
             return files;
         }
     }
