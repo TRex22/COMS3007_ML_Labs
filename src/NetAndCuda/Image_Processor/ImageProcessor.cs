@@ -20,7 +20,7 @@ namespace ImageProcessor
      * TODO: open folder of images
      * TODO: allow merge to convert as well - not in first version
      * TODO: add crop functionality
-     * TODO: add scaling functionality
+     * TODO: add scaling functionality in convert
      * TODO: add more file formats
      * TODO: convert from ASCII
      * TODO: add filters
