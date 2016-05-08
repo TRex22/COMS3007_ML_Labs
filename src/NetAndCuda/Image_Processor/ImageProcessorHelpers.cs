@@ -611,5 +611,14 @@ namespace ImageProcessor
                 b2.UnlockBits(bd2);
             }
         }
+
+        //http://stackoverflow.com/questions/7140081/how-to-get-only-filenames-within-a-directory-using-c
+        public static string[] GetFileNames(string path, string filter)
+        {
+            string[] files = Directory.GetFiles(path, filter);
+            for (int i = 0; i < files.Length; i++)
+                files[i] = Path.GetFileName(files[i]);
+            return files;
+        }
     }
 }
