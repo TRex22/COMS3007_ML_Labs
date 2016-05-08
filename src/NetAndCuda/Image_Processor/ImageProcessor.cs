@@ -90,9 +90,9 @@ namespace ImageProcessor
                 //USAGE for batch: ImageProcessor batch [input folder] [output folder] convert rgb bmp 100 100
                 newArgs[0] = "convert";
 
-                newArgs[2] = args[5];
+                newArgs[2] = args[4];
                 newArgs[3] = outputFolder;
-                newArgs[5] = args[8];
+                newArgs[5] = args[5];
 
                 foreach (string t in inputFiles)
                 {
@@ -100,12 +100,12 @@ namespace ImageProcessor
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
                         t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
-                        var fileName = t;
-                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+                        var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, t);
 
                         newArgs[1] = fileLocation;
                         newArgs[4] = fileName; //TODO namescheme
-
+                        
                         RunArguments(newArgs);
                     }//else ignore file
                     else
@@ -134,12 +134,12 @@ namespace ImageProcessor
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
                         t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
-                        var fileName = t;
-                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+                        var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, t);
 
                         newArgs[1] = fileLocation;
                         newArgs[3] = fileName;
-
+                        
                         RunArguments(newArgs);
                     }//else ignore file
                     else
@@ -164,8 +164,8 @@ namespace ImageProcessor
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
                         t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
-                        var fileName = t;
-                        var fileLocation = string.Format("{0}\\{1}", inputFolder, fileName);
+                        var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
+                        var fileLocation = string.Format("{0}\\{1}", inputFolder, t);
 
                         newArgs[1] = fileLocation;
                         newArgs[3] = fileName;
@@ -282,7 +282,7 @@ namespace ImageProcessor
                 Console.WriteLine("Scaling Image Using Given Dimensions...");
                 //ImageProcessor scale [input filename and location] [output foldername] [filename] bmp 100 100 (height width)
 
-                if (args.Length == 7)
+                if (args.Length >= 7)
                 {
                     var fileLocation = args[1];
                     var outputFolder = args[2];
@@ -316,7 +316,7 @@ namespace ImageProcessor
                 Console.WriteLine("Crop Image Using Given Dimensions...");
                 //ImageProcessor crop [input filename and location] [output foldername] [filename] bmp 100 100 (height width)
                 //TODO: make sure dimensions are less than image size, this is not scaling
-                if (args.Length == 7)
+                if (args.Length >= 7)
                 {
                     var fileLocation = args[1];
                     var outputFolder = args[2];
