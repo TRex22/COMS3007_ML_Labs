@@ -65,7 +65,7 @@ namespace ImageProcessor
             int width = image.Width;
 
             StringBuilder output = new StringBuilder();
-            output.Append(String.Format("ConvertedImage {0} {1} dimensions(height/width): {2} {3}\n", formatType, colourType, height, width));
+            output.Append(String.Format("ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));//TODO fix up width height fuck up...
 
             if (colourType.ToLower().Equals("r"))
             {
@@ -367,7 +367,7 @@ namespace ImageProcessor
                         //this is the first line (5 items)
                         firstLine = str.Split(' ');
 
-                        fileFormat = firstLine[1];
+                        //fileFormat = firstLine[1]; //not needed
                         colourType = firstLine[2];
                         height = Convert.ToInt32(firstLine[4]);
                         width = Convert.ToInt32(firstLine[5]);
@@ -386,48 +386,6 @@ namespace ImageProcessor
             return bmpImage;
         }
 
-        public Bitmap LoadAsciiFileDoAndInterestingThing(string fileLocation)
-        {
-            Bitmap bmpImage;
-            String[] asciiFile;
-            String[] firstLine = null;
-            StringBuilder builder = new StringBuilder();
-
-            String fileFormat = null;
-            String colourType = null;
-            int height = 0;
-            int width = 0;
-
-            using (StreamReader sr = new StreamReader(fileLocation))
-            {
-                while (sr.Peek() >= 0)
-                {
-                    //ConvertedImage ascii rb dimensions(height/width): 100 100
-                    String str = sr.ReadLine();
-                    if (firstLine == null)
-                    {
-                        //this is the first line (5 items)
-                        firstLine = str.Split(' ');
-
-                        fileFormat = firstLine[1];
-                        colourType = firstLine[2];
-                        height = Convert.ToInt32(firstLine[4]);
-                        width = Convert.ToInt32(firstLine[5]);
-                    }
-                    else
-                    {
-                        builder.Append(str + "\n");
-                    }
-                }
-            }
-
-            asciiFile = builder.ToString().Split('\n');
-
-            bmpImage = ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
-
-            return bmpImage;
-        }
-
         private Bitmap ConvertFromAsciiToBitmap(string[] asciiFile, int height, int width, String colourType)
         {
             //format rows = height
@@ -439,6 +397,7 @@ namespace ImageProcessor
             //loop lines
             for (int i = 0; i < asciiFile.Length-1; i++)
             {
+                //TODO: refactor
                 //loop columns
                 if (colourType.ToLower().Equals("r"))
                 {
@@ -611,9 +570,16 @@ namespace ImageProcessor
             return bmpImage;
         }
 
-        public Bitmap ScaleImage(Bitmap bmpImage, int height, int width)
+        public Bitmap ScaleImage(Bitmap image, int height, int width)
         {
-            Bitmap resizedImage = new Bitmap(bmpImage, new Size(width, height));
+            Bitmap resizedImage = new Bitmap(image, new Size(width, height));
+            /*Bitmap resizedImage = new Bitmap(width, height);
+
+            using (var graphics = Graphics.FromImage(resizedImage))
+            {
+                graphics.DrawImage(image, 0, 0, width, height);
+            }*/
+
             return resizedImage;
         }
 
@@ -628,6 +594,52 @@ namespace ImageProcessor
 
             return croppedImage;
         }
+
+        public void CompareTwoImages(Bitmap image1, Bitmap image2)
+        {
+            if (image1 == null || image2 == null)
+            {
+                Console.WriteLine(
+                    "One or both the images are either null or have not been loaded correctly due to an error.");
+            }
+            else if (CompareMemCmp(image1, image2))
+            {
+                //they are the same YAY!
+                Console.WriteLine("Image 1 is identical to Image 2.");
+            }
+            else
+            {
+                Console.WriteLine("Image 1 is not identical to Image 2.");
+                ImagePercentCompare(image1, image2);
+            }
+        }
+        
+        //TODO: change the calcs a bit ... kind of not entirely happy here 
+        //adapted from: https://rosettacode.org/wiki/Percentage_difference_between_images#C.23
+        public void ImagePercentCompare(Bitmap image1, Bitmap image2)
+        {
+            //TODO: optimise using better method than getPixel
+            if (image1.Size != image2.Size)
+            {
+                Console.Error.WriteLine("Images are of different sizes");
+                return;
+            }
+ 
+            float diff = 0;
+ 
+            for (int y = 0; y < image1.Height; y++)
+            {
+                for (int x = 0; x < image1.Width; x++)
+                {
+                    diff += (float)Math.Abs(image1.GetPixel(x, y).R - image2.GetPixel(x, y).R) / 255;
+                    diff += (float)Math.Abs(image1.GetPixel(x, y).G - image2.GetPixel(x, y).G) / 255;
+                    diff += (float)Math.Abs(image1.GetPixel(x, y).B - image2.GetPixel(x, y).B) / 255;
+                }
+            }
+ 
+            Console.WriteLine("Difference: {0} %", 100 * diff / (image1.Width * image1.Height * 3));
+        }
+        
 
         //got it from: http://stackoverflow.com/questions/2031217/what-is-the-fastest-way-i-can-compare-two-equal-size-bitmaps-to-determine-whethe
         [DllImport("msvcrt.dll")]

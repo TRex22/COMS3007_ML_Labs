@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 
@@ -7,7 +8,7 @@ namespace ImageProcessor
     /*
      * Jason Chalom 2016, Image Processor
      * Provide reference to this project when using it for research
-     * 
+     * TODO: rename since http://www.hanselman.com/blog/NuGetPackageOfTheWeekImageProcessorLightweightImageManipulationInC.aspx exists
      * TODO: Make into class library
      * TODO: Make Unit Tests
      * TODO: Convert all messages to a correct config structure
@@ -33,6 +34,14 @@ namespace ImageProcessor
      * TODO: refactor code
      * TODO: refactor how args are processed
      * TODO: rgb rbg have a thing which converts all possible inputs into readable form
+     * 
+     * TODO: add this
+     * graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+     * TODO: fix scaling batch cropping issue
+     * TODO: check image memory cleanup
      * 
      * RGB / RGBA problem
      * 
@@ -301,7 +310,7 @@ namespace ImageProcessor
 
                         //save as required format
                         Helpers.SaveImage(resizedImage, "RGB", fileFormat, outputFolder, outputFilename);
-
+                        resizedImage.Dispose();
                         Console.WriteLine("Completed Operation, Image Scaled.");
                     }
                 }
@@ -359,20 +368,7 @@ namespace ImageProcessor
                 var bmpImage1 = Helpers.OpenImageFile(file1Extension, file1Location);
                 var bmpImage2 = Helpers.OpenImageFile(file2Extension, file2Location);
 
-                if (bmpImage1 == null || bmpImage2 == null)
-                {
-                    Console.WriteLine(
-                        "One or both the images are either null or have not been loaded correctly due to an error.");
-                }
-                else if (Helpers.CompareMemCmp(bmpImage1, bmpImage2))
-                {
-                    //they are the same YAY!
-                    Console.WriteLine("Image 1 is identical to Image 2.");
-                }
-                else
-                {
-                    Console.WriteLine("Image 1 is not identical to Image 2.");
-                }
+                Helpers.CompareTwoImages(bmpImage1, bmpImage2);
             }
             else
             {
