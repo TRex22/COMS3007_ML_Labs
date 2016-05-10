@@ -46,6 +46,11 @@ namespace ImageProcessor
                 var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".dat");
                 SaveToAscii(path, image, colourType);
             }
+            else if (outputFormat.ToLower().Equals("weka") || outputFormat.ToLower().Equals("arff"))
+            {
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".arff");
+                SaveToWeka(path, image, colourType);
+            }
             else
             {
                 Console.WriteLine("Incorrect file format, please specify the correct file type to save as.");
@@ -57,6 +62,108 @@ namespace ImageProcessor
             var strBuilderOutput = ConvertImageToString(image, colourType, "ascii");
             var strOutput = strBuilderOutput.ToString();
             System.IO.File.WriteAllText(path, strOutput);
+        }
+
+        private void SaveToWeka(string path, Bitmap image, string colourType)
+        {
+            var strBuilderOutput = ConvertImageToWekaString(image, colourType, "weka");
+            var strOutput = strBuilderOutput.ToString();
+            System.IO.File.WriteAllText(path, strOutput);
+        }
+
+        private object ConvertImageToWekaString(Bitmap image, string colourType, string formatType)
+        {
+            int height = image.Height;
+            int width = image.Width;
+
+            StringBuilder output = new StringBuilder();
+            output.Append(String.Format("%ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));//TODO fix up width height fuck up...
+            output.Append("@relation 'image'\n");
+
+            //create attributes
+            for (int i = 0; i < height * width; i++)
+            {
+                output.Append("@attribute pixel"+i+" real\n");
+            }
+
+            output.Append("@data\n");
+
+            //data is csv
+            //todo fix using substring
+            if (colourType.ToLower().Equals("r") || colourType.ToLower().Equals("g") || colourType.ToLower().Equals("b"))
+            {
+                output = GetPixelColourValueCSV(image, colourType, output);
+            }
+            else if (colourType.ToLower().Equals("rg") || colourType.ToLower().Equals("gr"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "g", output);
+            }
+            else if (colourType.ToLower().Equals("rb") || colourType.ToLower().Equals("br"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else if (colourType.ToLower().Equals("gb") || colourType.ToLower().Equals("bg"))
+            {
+                output = GetPixelColourValueCSV(image, "g", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") ||
+                     colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "g", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else
+            {
+                //do nothing rgb and also incorrect option
+                //TODO JMC: add error here
+            }
+
+
+            return output;
+        }
+
+        private StringBuilder GetPixelColourValueCSV(Bitmap image, string channel, StringBuilder output)
+        {
+            //TODO: USe below
+            if (channel.ToLower().Equals("r"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output.Append(String.Format("{0},", pixel.R));
+                    }
+                }
+            }
+            else if (channel.ToLower().Equals("g"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output.Append(String.Format("{0},", pixel.G));
+                    }
+                }
+            }
+            else if (channel.ToLower().Equals("b"))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        var pixel = image.GetPixel(x, y); //TODO: use a faster method
+                        output.Append(String.Format("{0},", pixel.B));
+                    }
+                }
+            }
+
+            return output;
         }
 
         private StringBuilder ConvertImageToString(Bitmap image, string colourType, string formatType)
