@@ -34,6 +34,12 @@ namespace ImageProcessor
      * TODO: refactor code
      * TODO: refactor how args are processed
      * TODO: rgb rbg have a thing which converts all possible inputs into readable form
+     * TODO: weka support
+     * TODO: scripting language for filters and using multiple arguments with file or batch
+     * TODO: csv, JSON ouput
+     * 
+     * TODO: http://stackoverflow.com/questions/568968/does-any-one-know-of-a-faster-method-to-do-string-split
+     * TODO: http://stackoverflow.com/questions/399798/memory-efficiency-and-performance-of-string-replace-net-framework/400065#400065
      * 
      * TODO: add this
      * graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
@@ -108,7 +114,7 @@ namespace ImageProcessor
                 {
                     if (t.Contains(".png") || t.Contains(".bmp") ||
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
-                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                        t.Contains(".dat") || t.Contains(".arff"))//TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
                         var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
                         var fileLocation = string.Format("{0}\\{1}", inputFolder, t);

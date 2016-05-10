@@ -78,15 +78,15 @@ namespace ImageProcessor
 
             StringBuilder output = new StringBuilder();
             output.Append(String.Format("%ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));//TODO fix up width height fuck up...
-            output.Append("@relation 'image'\n");
+            output.Append("@RELATION 'image'\n\n");
 
             //create attributes
             for (int i = 0; i < height * width; i++)
             {
-                output.Append("@attribute pixel"+i+" real\n");
+                output.Append("@ATTRIBUTE pixel" + i + " numeric\n");
             }
 
-            output.Append("@data\n");
+            output.Append("\n@DATA\n");
 
             //data is csv
             //todo fix using substring
@@ -136,7 +136,14 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output.Append(String.Format("{0},", pixel.R));
+                        if (x == image.Height - 1 && y == image.Width - 1)
+                        {
+                            output.Append(String.Format("{0}", pixel.R));
+                        }
+                        else
+                        {
+                            output.Append(String.Format("{0},", pixel.R));
+                        }
                     }
                 }
             }
@@ -147,7 +154,14 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output.Append(String.Format("{0},", pixel.G));
+                        if (x == image.Height - 1 && y == image.Width - 1)
+                        {
+                            output.Append(String.Format("{0}", pixel.G));
+                        }
+                        else
+                        {
+                            output.Append(String.Format("{0},", pixel.G));
+                        }
                     }
                 }
             }
@@ -158,11 +172,18 @@ namespace ImageProcessor
                     for (int y = 0; y < image.Height; y++)
                     {
                         var pixel = image.GetPixel(x, y); //TODO: use a faster method
-                        output.Append(String.Format("{0},", pixel.B));
+                        if (x == image.Height -1  && y == image.Width -1)
+                        {
+                            output.Append(String.Format("{0}", pixel.B));
+                        }
+                        else
+                        {
+                            output.Append(String.Format("{0},", pixel.B));
+                        }
                     }
                 }
             }
-
+            output.Append("\n");
             return output;
         }
 
@@ -451,7 +472,7 @@ namespace ImageProcessor
             return image;
         }
 
-        public Bitmap LoadAsciiFile(string fileLocation)
+        public Bitmap LoadAsciiFile(string fileLocation, bool? isWeka)
         {
             Bitmap bmpImage;
             String[] asciiFile;
@@ -488,9 +509,137 @@ namespace ImageProcessor
             String file = builder.ToString();
             asciiFile = file.Split('\n');
 
-            bmpImage = ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
+            bmpImage = isWeka == true ? ConvertFromWekaToBitmap(asciiFile, height, width, colourType) : ConvertFromAsciiToBitmap(asciiFile, height, width, colourType);
 
             return bmpImage;
+        }
+
+        private Bitmap ConvertFromWekaToBitmap(string[] wekaFile, int height, int width, string colourType)
+        {
+            //Seek file to find @data, lines below each specifiy RGBA in order
+            //format rows = height
+            Bitmap image = new Bitmap(width, height);
+
+            bool foundData = false;
+            int lineCount = 0;
+
+            for (int i = 0; i < wekaFile.Length - 1; i++)
+            {
+                if (foundData)
+                {
+                    //read data
+                    if (!String.IsNullOrWhiteSpace(wekaFile[i]))
+                    {
+                        lineCount++;
+                        image = ProcessCSVLineToImage(image, wekaFile[i], lineCount);
+                    }
+                    
+                }
+
+                if (wekaFile[i].ToLower().Contains("@data"))
+                {
+                    foundData = true;
+                }
+            }
+
+            return image;
+        }
+
+        private Bitmap ProcessCSVLineToImage(Bitmap image, string line, int lineCount)
+        {
+            int currentWidth = 0;
+            int currentHeight = 0;
+
+            var dataPoints = line.Split(','); //TODO Use something better
+
+            for (int i = 0; i < dataPoints.Length; i++)
+            {
+                if (lineCount == 1)
+                {
+                    //TODO: for R optimise by just defaulting everything
+                    int R = Convert.ToInt32(dataPoints[i]);
+
+                    var pixel = image.GetPixel(currentWidth, currentHeight);
+                    var colour = Color.FromArgb(255, R, pixel.G, pixel.B);
+
+                    image.SetPixel(currentWidth, currentHeight, colour);
+
+                    //check and count
+                    if (currentWidth < image.Width - 1)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (lineCount == 2)
+                {
+                    int G = Convert.ToInt32(dataPoints[i]);
+
+                    var pixel = image.GetPixel(currentWidth, currentHeight);
+                    var colour = Color.FromArgb(255, pixel.R, G, pixel.B);
+
+                    image.SetPixel(currentWidth, currentHeight, colour);
+
+                    //check and count
+                    if (currentWidth < image.Width - 1)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (lineCount == 3)
+                {
+                    int B = Convert.ToInt32(dataPoints[i]);
+
+                    var pixel = image.GetPixel(currentWidth, currentHeight);
+                    var colour = Color.FromArgb(255, pixel.R, pixel.G, B);
+
+                    image.SetPixel(currentWidth, currentHeight, colour);
+                    
+                    //check and count
+                    if (currentWidth < image.Width - 1)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+                else if (lineCount == 4)
+                {
+                    //Transpaerncy for a later date TODO: implement this feature
+                    //Will just do it what the hell
+                    int A = Convert.ToInt32(dataPoints[i]);
+
+                    var pixel = image.GetPixel(currentWidth, currentHeight);
+                    var colour = Color.FromArgb(A, pixel.R, pixel.G, pixel.B);
+
+                    image.SetPixel(currentWidth, currentHeight, colour);
+
+                    //check and count
+                    if (currentWidth < image.Width - 1)
+                    {
+                        currentWidth++;
+                    }
+                    else
+                    {
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+                }
+            }
+
+            return image;
         }
 
         private Bitmap ConvertFromAsciiToBitmap(string[] asciiFile, int height, int width, String colourType)
@@ -664,7 +813,14 @@ namespace ImageProcessor
             if (fileExtension != null && fileExtension.Contains(".dat"))
             {
                 //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
-                bmpImage = LoadAsciiFile(fileLocation);
+                bmpImage = LoadAsciiFile(fileLocation, false);
+                //quick fix
+                bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
+            }
+            else if (fileExtension != null && fileExtension.Contains(".arff")) //weka
+            {
+                //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
+                bmpImage = LoadAsciiFile(fileLocation, true);
                 //quick fix
                 bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
             }
