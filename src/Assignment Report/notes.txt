@@ -1,0 +1,24 @@
+Jason Chalom 711985 May 2016
+
+Notes:
+======
+
+State purpose of research
+State wanted results / expected i.e. hypothesis
+
+State restrictions
+State methods
+
+Show results per method together with each respective explination
+
+
+================
+Restrictions:
+================
+
+Square images
+Real life / contains a certain amount of poission or normally distributed data (pixels)
+All the same size
+
+Per method restrictions:
+========================
