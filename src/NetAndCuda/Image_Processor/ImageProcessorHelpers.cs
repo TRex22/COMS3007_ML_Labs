@@ -70,7 +70,6 @@ namespace ImageProcessor
             JsonSchema schema = new JsonSchema();
             schema.Type = JsonSchemaType.Object;
             schema.Properties = new Dictionary<string, JsonSchema>
-            //String.Format("%ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));//TODO fix up width height fuck up...
             {
                 { "formatType", new JsonSchema { Type = JsonSchemaType.String } },
                 { "colourType", new JsonSchema { Type = JsonSchemaType.String } },
