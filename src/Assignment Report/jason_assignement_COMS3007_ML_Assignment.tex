@@ -70,20 +70,36 @@ All the images are preprocessed to have the same square dimensions of 100 x 100 
 
 The images are then converted to a filetype which can be used by the machine learning library. This is done by 'vectorising' the image or turning the two dimensional array of pixels into a one dimensional array of pixel values. TODO: add here
 
-The aim of this project is to predict the change in pixels 
+The aim of this project is to predict the change in pixels caused by the use of the bw filter and potentially improve on the filter. Optimise bw2 filter which is very slow?
 
-\section{General Restrictions Applied}
+\section{General Restrictions and Normalisation Applied}
 \\A description of how you structured your inputs/targets and normalised the data, and the
 split into training/validation/test data.\\
 
-Square images\\
-Real life / contains a certain amount of poission or normally distributed data (pixels)\\
-All the same size\\
+All the images are square and have the dimensions of 100 x 100 pixels. The images are either randomly generated or are photographs which have been digitally scanned from the real world. The images have been preprocessed by using the bw filter in order to become the target dataset.
+
+Most of the training data will come from the images pull from the wikicommons repository. Validation and test data will have 10% real world images and the rest will come from randomly generated images. The rendomly generated images have better spread of pixel data and so are better for making sure bias in the network is kept to a minimum.
+
+The output of the network was in the same form as the input into the network. This allows the output to be reconstructed into an image by the same image processing program described earlier.
+
+Two strategies for data input was used. The first as described above was to input images into the network as seperate data values in the set. This used 100 x 100 images, for both the data inputs and targets. The inputs to the network each represented a pixel from an image. So for the data used 10000 input nodes and 10000 output nodes were used.
+
+The other strategy was to have an image as the input dataset and rather than looking at the entire image as the input each pixel and its respective RGB values were the inputs to the network. This strategy had 3 input nodes and 3 output nodes with many more hidden layers and nodes than the first strategy.
+
+Both strategies are compared below.
 
 \section{Algorithms Used}
 Neural Network With Perceptron Learning (Forward Propogation)\\
 NN with Back Propogation\\
 NN with RBF\\
+
+Several methods were applied to this problem:
+0. Neural network with back propogation
+1. Multi-layer neural network
+2. Multi-layer neural network with back propogation
+3. RBF Neural Network
+
+Within these networks several variations on parameters were used. (see the next section)
 
 \section{Methods Applied to The Problem}
 A list of supervised learning algorithms you applied to the data, together with the details
