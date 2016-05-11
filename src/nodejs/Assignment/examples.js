@@ -12,7 +12,7 @@ function mainScript(){
 	mlTrain();
 	nodeMindTrain();
 	convnetJSTrain();
-	synapticTrain(); //very slow compared to the others
+	//synapticTrain(); //very slow compared to the others
 }
 
 //Training brain js
@@ -40,6 +40,87 @@ function brainTrain(){
 //training machine_learning
 function mlTrain(){
 	console.log("machine_learning Train\n");
+	//Linear Regression
+	console.log("linear regression\n");
+	ml_lr_Train();
+	//multilayer perceptron
+	console.log("multilayer perceptron\n");
+	ml_mlp_Train();
+	//k-means clustering
+	ml_km_Train();
+}
+
+function ml_km_Train(){
+	var ml = require('machine_learning');
+ 
+	var data = [[1,0,1,0,1,1,1,0,0,0,0,0,1,0],
+            [1,1,1,1,1,1,1,0,0,0,0,0,1,0],
+            [1,1,1,0,1,1,1,0,1,0,0,0,1,0],
+            [1,0,1,1,1,1,1,1,0,0,0,0,1,0],
+            [1,1,1,1,1,1,1,0,0,0,0,0,1,1],
+            [0,0,1,0,0,1,0,0,1,0,1,1,1,0],
+            [0,0,0,0,0,0,1,1,1,0,1,1,1,0],
+            [0,0,0,0,0,1,1,1,0,1,0,1,1,0],
+            [0,0,1,0,1,0,1,1,1,1,0,1,1,1],
+            [0,0,0,0,0,0,1,1,1,1,1,1,1,1],
+            [1,0,1,0,0,1,1,1,1,1,0,0,1,0]
+           ];
+ 
+	var result = ml.kmeans.cluster({
+	    data : data,
+	    k : 4,
+	    epochs: 100,
+	 
+	    distance : {type : "pearson"}
+	    // default : {type : 'euclidean'}
+	    // {type : 'pearson'}
+	    // Or you can use your own distance function
+	    // distance : function(vecx, vecy) {return Math.abs(dot(vecx,vecy));}
+	});
+	 
+	console.log("clusters : ", result.clusters);
+	console.log("means : ", result.means+"\n");
+}
+
+function ml_lr_Train(){
+	var ml = require('machine_learning');
+	var x = [[1,1,1,0,0,0],
+	         [1,0,1,0,0,0],
+	         [1,1,1,0,0,0],
+	         [0,0,1,1,1,0],
+	         [0,0,1,1,0,0],
+	         [0,0,1,1,1,0]];
+	var y = [[1, 0],
+	         [1, 0],
+	         [1, 0],
+	         [0, 1],
+	         [0, 1],
+	         [0, 1]];
+	 
+	var classifier = new ml.LogisticRegression({
+	    'input' : x,
+	    'label' : y,
+	    'n_in' : 6,
+	    'n_out' : 2
+	});
+	 
+	classifier.set('log level',1);
+	 
+	var training_epochs = 800, lr = 0.01;
+	 
+	classifier.train({
+	    'lr' : lr,
+	    'epochs' : training_epochs
+	});
+	 
+	x = [[1, 1, 0, 0, 0, 0],
+	     [0, 0, 0, 1, 1, 0],
+	     [1, 1, 1, 1, 1, 0]];
+	 
+	console.log("Result : ",classifier.predict(x)+"\n");
+}
+
+function ml_mlp_Train(){
 	var ml = require('machine_learning');
 	var x = [[0.4, 0.5, 0.5, 0.,  0.,  0.],
 	         [0.5, 0.3,  0.5, 0.,  0.,  0.],
