@@ -1,0 +1,7 @@
+JS Machine Learning Libraries:
+
+Brain JS
+Synapse
+machine_learning
+mind
+convnetjs

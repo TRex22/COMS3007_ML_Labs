@@ -1,0 +1,21 @@
+{
+  "name": "ML_Assignemnet_Runnable",
+  "version": "1.0.0",
+  "description": "NodeJs Script to run some Machine Learning Experiments",
+  "main": "imageLearn.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jason Chalom @Trex22",
+  "license": "MIT",
+  "dependencies": {
+    "brain": "^0.7.0",
+    "convnetjs": "^0.3.0",
+    "data4node": "^0.1.1",
+    "hactarjs": "0.0.1",
+    "machine_learning": "0.0.8",
+    "mnist": "^1.0.2",
+    "node-mind": "^0.2.1",
+    "synaptic": "^1.0.2"
+  }
+}
