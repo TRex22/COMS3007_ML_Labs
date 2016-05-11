@@ -114,7 +114,8 @@ namespace ImageProcessor
                 {
                     if (t.Contains(".png") || t.Contains(".bmp") ||
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
-                        t.Contains(".dat") || t.Contains(".arff"))//TODO make an enum to store all used filetypes, complete refactor rquired here
+                        t.Contains(".dat") || t.Contains(".arff") ||
+                        t.Contains(".json"))//TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
                         var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
                         var fileLocation = string.Format("{0}\\{1}", inputFolder, t);
@@ -148,7 +149,8 @@ namespace ImageProcessor
                 {
                     if (t.Contains(".png") || t.Contains(".bmp") ||
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
-                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                        t.Contains(".dat") || t.Contains(".arff") || 
+                        t.Contains(".json")) //TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
                         var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
                         var fileLocation = string.Format("{0}\\{1}", inputFolder, t);
@@ -178,7 +180,8 @@ namespace ImageProcessor
                 {
                     if (t.Contains(".png") || t.Contains(".bmp") ||
                         t.Contains(".jpg") || t.Contains(".jpeg") ||
-                        t.Contains(".dat")) //TODO make an enum to store all used filetypes, complete refactor rquired here
+                        t.Contains(".dat") || t.Contains(".arff") ||
+                        t.Contains(".json")) //TODO make an enum to store all used filetypes, complete refactor rquired here
                     {
                         var fileName = t.Substring(0, t.IndexOf(".", StringComparison.Ordinal));
                         var fileLocation = string.Format("{0}\\{1}", inputFolder, t);

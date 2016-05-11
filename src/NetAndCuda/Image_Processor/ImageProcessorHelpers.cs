@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -60,6 +63,28 @@ namespace ImageProcessor
             {
                 Console.WriteLine("Incorrect file format, please specify the correct file type to save as.");
             }
+        }
+
+        private void SaveToJson(string path, Bitmap image, string colourType)
+        {
+            JsonSchema schema = new JsonSchema();
+            schema.Type = JsonSchemaType.Object;
+            schema.Properties = new Dictionary<string, JsonSchema>
+            //String.Format("%ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));//TODO fix up width height fuck up...
+            {
+                { "formatType", new JsonSchema { Type = JsonSchemaType.String } },
+                { "colourType", new JsonSchema { Type = JsonSchemaType.String } },
+                { "width", new JsonSchema { Type = JsonSchemaType.Integer } },
+                { "height", new JsonSchema { Type = JsonSchemaType.Integer } },
+                { "pixels", new JsonSchema { Type = JsonSchemaType.Array } }
+            };
+
+            string json = JsonConvert.SerializeObject(_data.ToArray());
+
+            //write string to file
+            System.IO.File.WriteAllText(@"D:\path.txt", json);
+
+            throw new NotImplementedException();
         }
 
         private void SaveToAscii(string path, Bitmap image, String colourType)
