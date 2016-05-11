@@ -49,19 +49,31 @@
 \end{titlepage}
 \begin{page}
 \section{Purpose}
-Find a suitable dataset on which you can apply various supervised learning algorithms.
+\\Find a suitable dataset on which you can apply various supervised learning algorithms.
 This can be either a classication problem or a regression problem.
 Apply various supervised learning algorithms to your dataset.
 
-Regression on images datasets
+My project involves image processing and its relation to machine learning. I went out to test different network methods, and find a network setup which works well with learning image filtering. The filter I chose to train these different methods with is specifically a filter, I created which reduces an image from RGB scale to a Black White scale where each pixel is reduced to a bw value based on its luminosity and its neighbours luminosity.
+
+I created an image processor program which has the ability to convert images between formats such as jpeg, png and json. This program is also used for pre-processing the data such as normalising it and applying filters to be used as the target dataset. This program can also generate randomly generated 'noisey' images and scale or crop the images to the desired dimensions.
 
 \section{Dataset Used}
-A description of your dataset: what are the attributes, what are the targets, how many
+\\A description of your dataset: what are the attributes, what are the targets, how many
 datapoints do you have, and some sample datapoints from the dataset. State what you are
 trying to predict with the data.\\
 
+I have used data found from the Wikicommons public domain image repository. I have also created a set of random RGB images which are also going to be used to make sure that the networks do not learn regular features which may be present in the images chosen from Wikicommons. \\
+
+The images chosen from online are all photographs which have either been scanned in or taken with a digital imaging device such as a CCDU or digital camera. This is to make sure that the data has even spread of pixels which do not have the same kind regularity as digital images may contain. This regularity could bias any trained network which will then provide results which are not desireable.
+
+All the images are preprocessed to have the same square dimensions of 100 x 100 pixels, to get these dimensions the images are all cropped from the centre of the image. The target dataset is produced by applying the image filter to each input image.
+
+The images are then converted to a filetype which can be used by the machine learning library. This is done by 'vectorising' the image or turning the two dimensional array of pixels into a one dimensional array of pixel values. TODO: add here
+
+The aim of this project is to predict the change in pixels 
+
 \section{General Restrictions Applied}
-A description of how you structured your inputs/targets and normalised the data, and the
+\\A description of how you structured your inputs/targets and normalised the data, and the
 split into training/validation/test data.\\
 
 Square images\\

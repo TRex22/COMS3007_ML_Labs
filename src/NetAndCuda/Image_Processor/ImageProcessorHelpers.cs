@@ -51,6 +51,11 @@ namespace ImageProcessor
                 var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".arff");
                 SaveToWeka(path, image, colourType);
             }
+            else if (outputFormat.ToLower().Equals("json") || outputFormat.ToLower().Equals("arff"))
+            {
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".json");
+                SaveToJson(path, image, colourType);
+            }
             else
             {
                 Console.WriteLine("Incorrect file format, please specify the correct file type to save as.");
