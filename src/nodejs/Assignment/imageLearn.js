@@ -56,7 +56,7 @@ function run_ml_network_whole_image_set(imageSet, noNodes, output){
 	    'label' : y,
 	    'n_ins' : noNodes,
 	    'n_outs' : noNodes,
-	    'hidden_layer_sizes' : [5]
+	    'hidden_layer_sizes' : [25, 25]
 	});
 	 
 	mlp.set('log level',1); // 0 : nothing, 1 : info, 2 : warning.
