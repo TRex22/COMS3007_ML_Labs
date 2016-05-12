@@ -8,11 +8,11 @@ mainScript();
 //main
 function mainScript(){
 	//allow me to play
-	brainTrain();
+	/*brainTrain();
 	mlTrain();
 	nodeMindTrain();
-	convnetJSTrain();
-	//synapticTrain(); //very slow compared to the others
+	convnetJSTrain();*/
+	synapticTrain(); //very slow compared to the others
 }
 
 //Training brain js
@@ -117,7 +117,7 @@ function ml_lr_Train(){
 	     [0, 0, 0, 1, 1, 0],
 	     [1, 1, 1, 1, 1, 0]];
 	 
-	console.log("Result : ",classifier.predict(x)+"\n");
+	console.log("Result : "+classifier.predict(x)+"\n");
 }
 
 function ml_mlp_Train(){
@@ -263,6 +263,42 @@ function nodeMindTrain(){
 	  ]);
 
 	var xor = mind.download();*/
+}
+
+//neuraln
+function nuralnTrain(){
+	var NeuralN = require('neuraln');
+
+	/* Create a neural network with 4 layers (2 hidden layers) */
+	var network = new NeuralN([ 1, 4, 3, 1 ]);
+
+	/* Add points to the training set */
+	for(var i = -1; i < 1; i+=0.1) {
+	  network.train_set_add([ i ], [ Math.abs(Math.sin(i)) ]);
+	}
+
+	/* Train the network with one of the two available methods */
+	/* monothread (blocking) vs multithread (non-blocking)     */
+	network.train({
+	  target_error: 0.01,
+	  iterations: 20000,
+
+	  multithread: true,
+	  /* Relevant only when multithread is true: */
+	  step_size: 100,
+	  threads: 4
+	}, function(err) {
+
+	});
+
+	/* Run */
+	var result = network.run([ (Math.random() * 2) - 1 ]);
+
+	/* Retrieve the network's string representation */
+	var string = network.to_string();
+
+	/* Retrieve the network's state string */
+	var state = network.get_state();
 }
 
 //convnetjs

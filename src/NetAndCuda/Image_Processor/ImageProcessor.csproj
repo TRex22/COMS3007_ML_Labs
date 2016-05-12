@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="convert csv results.cmd" />
     <None Include="generateNodeJs.cmd" />
     <None Include="packages.config" />
     <None Include="rndImgGen.cmd" />

@@ -21,3 +21,7 @@ https://github.com/stevenmiller888/mind
 http://www.mindjs.net/
 
 https://no2147483647.wordpress.com/2015/12/07/deep-learning-for-hackers-with-mxnet-1/
+
+
+https://people.mpi-inf.mpg.de/~kkim/supres/supres.htm
+http://www.cv-foundation.org/openaccess/content_cvpr_2013/papers/Yang_Fast_Image_Super-Resolution_2013_CVPR_paper.pdf

@@ -643,23 +643,28 @@ namespace ImageProcessor
             int currentWidth = 0;
             int currentHeight = 0;
 
+            //Console.WriteLine("Line: " + line);
             var dataPoints = line.Split(','); //TODO Use something better
-
-            Console.WriteLine("Sanity Check: " + dataPoints.Length + " number of data points in line.");
-
+            //Console.WriteLine("dataPointssssss: " + dataPoints[0]);
             //check if data is doubles
+
+            dataPoints = dataPoints.Skip(1).ToArray(); //TODO: Remove this hack
+
             //todo: better solution
             
-            if (dataPoints[0].Contains("0."))
+            if (line.Contains("0."))
             {
+                //Console.WriteLine("asf dataPoints.Length " + dataPoints.Length);
                 //sigmoid and decimal
                 for (int i = 0; i < dataPoints.Length; i++)
                 {
-                    //Console.WriteLine(dataPoints[i]);
+                    //Console.WriteLine("data: "+i);
                     //double.Parse("3.5", CultureInfo.InvariantCulture)
                     //Console.WriteLine("dataPoint " + i + "\n");
                     var dataPoint = float.Parse(dataPoints[i], CultureInfo.InvariantCulture);
                     int dataInt = (int)Math.Round(dataPoint, 0, MidpointRounding.AwayFromZero); // Output: 2 from 1.5
+
+                    /*Console.WriteLine("dataInt: " + dataInt);*/
 
                     if (dataInt == 0){
                         dataPoints[i] = "0";
@@ -671,15 +676,18 @@ namespace ImageProcessor
                     else
                     {
                         //todo something here
+                        Console.WriteLine("FDSGDSG: " + dataPoints[i]);
                     }
                 }
             }
 
-            for (int i = 0; i < dataPoints.Length; i++)
+            for (int i = 0; i < dataPoints.Length-1; i++)
             {
                 if (lineCount == 1)
                 {
                     //TODO: for R optimise by just defaulting everything
+                    //TODO: fix datapoints array starting at 1 and ending at length -1
+                    //Console.WriteLine("FDSGDSG: " + dataPoints[i]);
                     int R = int.Parse(dataPoints[i], CultureInfo.InvariantCulture); //Convert.ToInt32(dataPoints[i]);
 
                     var pixel = image.GetPixel(currentWidth, currentHeight);
@@ -1056,25 +1064,37 @@ namespace ImageProcessor
             {
                 //TODO refactor to include bottom stuff
                 //quick hack to get this to work
-                Console.WriteLine("File contains " + dataPoints.Length + " datapoints.\n");
+                //Console.WriteLine("File contains " + dataPoints.Length + " datapoints.\n");
 
-                int noLines = noDataPointsPerStream / dataPoints.Length;
-                Console.WriteLine("Sanity Check: " + noLines + " number of lines.");
+                int noLines = dataPoints.Length / noDataPointsPerStream;
+                //TODO: 
+                //Console.WriteLine("Sanity Check: " + noLines + " number of lines.");
+
                 string[] lines = new string[noLines];
+
+                int count = 0;
+                int totalCount = 0;
+                int currentLine = 0;
 
                 for (int i = 0; i < dataPoints.Length; i++)
                 {
-                    int count = 1;
-                    int currentLine = 0;
-
-                    lines[currentLine] += "," + dataPoints[i];
-                    if (count == noDataPointsPerStream)
+                    //Console.WriteLine("currentLine: " +currentLine);
+                    if (!string.IsNullOrWhiteSpace(dataPoints[i]))
                     {
-                        count = 1;
-                        currentLine++;
+                        lines[currentLine] += "," + dataPoints[i];
+                        //Console.WriteLine(lines[currentLine]);
                     }
 
+                    totalCount++;
                     count++;
+                    
+
+                    if (count == noDataPointsPerStream && currentLine != noLines)
+                    {
+                        //Console.WriteLine("count: " + totalCount);
+                        count = 0;
+                        currentLine++;
+                    }
                 }
                 return lines;
             }
