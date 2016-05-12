@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -644,12 +645,39 @@ namespace ImageProcessor
 
             var dataPoints = line.Split(','); //TODO Use something better
 
+            //check if data is doubles
+            //todo: better solution
+            Console.WriteLine("File contains " + dataPoints[0].Length + " datapoints.\n");
+            if (dataPoints[0].Contains("0."))
+            {
+                //sigmoid and decimal
+                for (int i = 0; i < dataPoints.Length; i++)
+                {
+                    //Console.WriteLine(dataPoints[i]);
+                    //double.Parse("3.5", CultureInfo.InvariantCulture)
+                    var dataPoint = float.Parse(dataPoints[i], CultureInfo.InvariantCulture);
+                    int dataInt = (int)Math.Round(dataPoint, 0, MidpointRounding.AwayFromZero); // Output: 2 from 1.5
+
+                    if (dataInt == 0){
+                        dataPoints[i] = "0";
+                    }
+                    else if (dataInt == 1)
+                    {
+                        dataPoints[i] = "255";
+                    }
+                    else
+                    {
+                        //todo something here
+                    }
+                }
+            }
+
             for (int i = 0; i < dataPoints.Length; i++)
             {
                 if (lineCount == 1)
                 {
                     //TODO: for R optimise by just defaulting everything
-                    int R = Convert.ToInt32(dataPoints[i]);
+                    int R = int.Parse(dataPoints[i], CultureInfo.InvariantCulture); //Convert.ToInt32(dataPoints[i]);
 
                     var pixel = image.GetPixel(currentWidth, currentHeight);
                     var colour = Color.FromArgb(255, R, pixel.G, pixel.B);
@@ -669,7 +697,7 @@ namespace ImageProcessor
                 }
                 else if (lineCount == 2)
                 {
-                    int G = Convert.ToInt32(dataPoints[i]);
+                    int G = int.Parse(dataPoints[i], CultureInfo.InvariantCulture);
 
                     var pixel = image.GetPixel(currentWidth, currentHeight);
                     var colour = Color.FromArgb(255, pixel.R, G, pixel.B);
@@ -689,7 +717,7 @@ namespace ImageProcessor
                 }
                 else if (lineCount == 3)
                 {
-                    int B = Convert.ToInt32(dataPoints[i]);
+                    int B = int.Parse(dataPoints[i], CultureInfo.InvariantCulture);
 
                     var pixel = image.GetPixel(currentWidth, currentHeight);
                     var colour = Color.FromArgb(255, pixel.R, pixel.G, B);
@@ -711,7 +739,7 @@ namespace ImageProcessor
                 {
                     //Transpaerncy for a later date TODO: implement this feature
                     //Will just do it what the hell
-                    int A = Convert.ToInt32(dataPoints[i]);
+                    int A = int.Parse(dataPoints[i], CultureInfo.InvariantCulture);
 
                     var pixel = image.GetPixel(currentWidth, currentHeight);
                     var colour = Color.FromArgb(A, pixel.R, pixel.G, pixel.B);

@@ -73,7 +73,7 @@ function run_ml_network_whole_image_set(imageSet, noNodes, output){
 	var endTime = new Date();
 	console.log("Ended: "+endTime+"\n");
 
-	var outputStr = "beginTime: "+ beginTime+" endTime: "+endTime+"\n"+result;
+	var outputStr = imageSet.newData.topLine+" beginTime: "+ beginTime+" endTime: "+endTime+"\n"+result;
 	hactar.saveFile(outputStr, output);
 
 	console.log(result+"\n");
