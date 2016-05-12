@@ -645,9 +645,11 @@ namespace ImageProcessor
 
             var dataPoints = line.Split(','); //TODO Use something better
 
+            Console.WriteLine("Sanity Check: " + dataPoints.Length + " number of data points in line.");
+
             //check if data is doubles
             //todo: better solution
-            Console.WriteLine("File contains " + dataPoints.Length + " datapoints.\n");
+            
             if (dataPoints[0].Contains("0."))
             {
                 //sigmoid and decimal
@@ -1024,20 +1026,59 @@ namespace ImageProcessor
             //format rows = height
             Bitmap image = new Bitmap(width, height);
 
-            bool foundData = false;
             int lineCount = 0;
 
-            for (int i = 0; i < csvFile.Length - 1; i++)
+            var lines = GetCsvLines(image, csvFile);
+
+            for (int i = 0; i < lines.Length - 1; i++)
             {
                 //read data
-                if (!String.IsNullOrWhiteSpace(csvFile[i]))
+                if (!String.IsNullOrWhiteSpace(lines[i]))
                 {
                     lineCount++;
-                    image = ProcessCSVLineToImage(image, csvFile[i], lineCount);
+                    image = ProcessCSVLineToImage(image, lines[i], lineCount);
                 }
             }
 
             return image;
+        }
+
+        private string[] GetCsvLines(Bitmap image, string[] csvFile)
+        {
+            int noDataPointsPerStream = image.Width * image.Height;
+            var dataPoints = csvFile[0].Split(',');
+
+            if (csvFile.Length >= 1 && dataPoints.Length == noDataPointsPerStream)
+            {
+                return csvFile;
+            }
+            else
+            {
+                //TODO refactor to include bottom stuff
+                //quick hack to get this to work
+                Console.WriteLine("File contains " + dataPoints.Length + " datapoints.\n");
+
+                int noLines = noDataPointsPerStream / dataPoints.Length;
+                Console.WriteLine("Sanity Check: " + noLines + " number of lines.");
+                string[] lines = new string[noLines];
+
+                for (int i = 0; i < dataPoints.Length; i++)
+                {
+                    int count = 1;
+                    int currentLine = 0;
+
+                    lines[currentLine] += "," + dataPoints[i];
+                    if (count == noDataPointsPerStream)
+                    {
+                        count = 1;
+                        currentLine++;
+                    }
+
+                    count++;
+                }
+                return lines;
+            }
+            return null;            
         }
 
         public Bitmap ScaleImage(Bitmap image, int height, int width)
