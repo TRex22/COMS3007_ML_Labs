@@ -647,7 +647,7 @@ namespace ImageProcessor
 
             //check if data is doubles
             //todo: better solution
-            Console.WriteLine("File contains " + dataPoints[0].Length + " datapoints.\n");
+            Console.WriteLine("File contains " + dataPoints.Length + " datapoints.\n");
             if (dataPoints[0].Contains("0."))
             {
                 //sigmoid and decimal
@@ -655,6 +655,7 @@ namespace ImageProcessor
                 {
                     //Console.WriteLine(dataPoints[i]);
                     //double.Parse("3.5", CultureInfo.InvariantCulture)
+                    //Console.WriteLine("dataPoint " + i + "\n");
                     var dataPoint = float.Parse(dataPoints[i], CultureInfo.InvariantCulture);
                     int dataInt = (int)Math.Round(dataPoint, 0, MidpointRounding.AwayFromZero); // Output: 2 from 1.5
 
