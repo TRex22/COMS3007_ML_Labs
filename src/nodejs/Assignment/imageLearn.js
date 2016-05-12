@@ -6,6 +6,8 @@ var parser = require('data4node').babelFish.csv;
 var hactar = require('hactarjs');
 
 var fs = require('fs')
+
+//node --max_old_space_size=4096 imageLearn.js /c/dataTest/node/output/1.csv /c/dataTest/node/bw/1.csv /c/dataTest/node/output/2.csv /c/dataTest/node/result/2_result.csv
 var filenameInput = process.argv[2];
 var filenameTarget = process.argv[3];
 var filenameNewData = process.argv[4];
@@ -54,7 +56,7 @@ function run_ml_network_whole_image_set(imageSet, noNodes, output){
 	    'label' : y,
 	    'n_ins' : noNodes,
 	    'n_outs' : noNodes,
-	    'hidden_layer_sizes' : [4,4,5]
+	    'hidden_layer_sizes' : [5]
 	});
 	 
 	mlp.set('log level',1); // 0 : nothing, 1 : info, 2 : warning.
