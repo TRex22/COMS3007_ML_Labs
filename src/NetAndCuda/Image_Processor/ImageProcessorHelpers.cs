@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
+﻿/*using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;*/
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -59,15 +59,75 @@ namespace ImageProcessor
                 var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".json");
                 SaveToJson(path, image, colourType);
             }
+            else if (outputFormat.ToLower().Equals("csv") || outputFormat.ToLower().Equals("csv"))
+            {
+                //slightly modified csv to allow for extra info line
+                var path = String.Format("{0}\\{1}{2}", outputFolder, outputFile, ".csv");
+                SaveToCSV(path, image, colourType);
+            }
             else
             {
                 Console.WriteLine("Incorrect file format, please specify the correct file type to save as.");
             }
         }
 
+        private void SaveToCSV(string path, Bitmap image, string colourType)
+        {
+            var strBuilderOutput = ConvertImageToCsvString(image, colourType, "csv");
+            var strOutput = strBuilderOutput.ToString();
+            System.IO.File.WriteAllText(path, strOutput);
+        }
+
+        private StringBuilder ConvertImageToCsvString(Bitmap image, string colourType, string formatType)
+        {
+            int height = image.Height;
+            int width = image.Width;
+
+            StringBuilder output = new StringBuilder();
+            output.Append(String.Format("%ConvertedImage {0} {1} dimensions(width/height): {2} {3}\n", formatType, colourType, width, height));
+
+            //data is csv
+            //todo fix using substring
+            if (colourType.ToLower().Equals("r") || colourType.ToLower().Equals("g") || colourType.ToLower().Equals("b"))
+            {
+                output = GetPixelColourValueCSV(image, colourType, output);
+            }
+            else if (colourType.ToLower().Equals("rg") || colourType.ToLower().Equals("gr"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "g", output);
+            }
+            else if (colourType.ToLower().Equals("rb") || colourType.ToLower().Equals("br"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else if (colourType.ToLower().Equals("gb") || colourType.ToLower().Equals("bg"))
+            {
+                output = GetPixelColourValueCSV(image, "g", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else if (colourType.ToLower().Equals("bw") || colourType.ToLower().Equals("gs") ||
+                     colourType.ToLower().Equals("rgb") || colourType.ToLower().Equals("rgba"))
+            {
+                output = GetPixelColourValueCSV(image, "r", output);
+                output = GetPixelColourValueCSV(image, "g", output);
+                output = GetPixelColourValueCSV(image, "b", output);
+            }
+            else
+            {
+                //do nothing rgb and also incorrect option
+                //TODO JMC: add error here
+            }
+
+
+            return output;
+        }
+
         private void SaveToJson(string path, Bitmap image, string colourType)
         {
-            JsonSchema schema = new JsonSchema();
+            throw new NotImplementedException();
+            /*JsonSchema schema = new JsonSchema();
             schema.Type = JsonSchemaType.Object;
             schema.Properties = new Dictionary<string, JsonSchema>
             {
@@ -76,14 +136,14 @@ namespace ImageProcessor
                 { "width", new JsonSchema { Type = JsonSchemaType.Integer } },
                 { "height", new JsonSchema { Type = JsonSchemaType.Integer } },
                 { "pixels", new JsonSchema { Type = JsonSchemaType.Array } }
-            };
+            };*/ //TODO: Implement this
 
-            string json = JsonConvert.SerializeObject(_data.ToArray());
+            /*string json = JsonConvert.SerializeObject(_data.ToArray());
 
             //write string to file
             System.IO.File.WriteAllText(@"D:\path.txt", json);
+            */
 
-            throw new NotImplementedException();
         }
 
         private void SaveToAscii(string path, Bitmap image, String colourType)
@@ -99,7 +159,7 @@ namespace ImageProcessor
             var strOutput = strBuilderOutput.ToString();
             System.IO.File.WriteAllText(path, strOutput);
         }
-
+        
         private object ConvertImageToWekaString(Bitmap image, string colourType, string formatType)
         {
             int height = image.Height;
@@ -175,6 +235,7 @@ namespace ImageProcessor
                         }
                     }
                 }
+                output.Append("\n");
             }
             else if (channel.ToLower().Equals("g"))
             {
@@ -193,6 +254,7 @@ namespace ImageProcessor
                         }
                     }
                 }
+                output.Append("\n");
             }
             else if (channel.ToLower().Equals("b"))
             {
@@ -211,8 +273,9 @@ namespace ImageProcessor
                         }
                     }
                 }
+                //output.Append("\n");
+                //TODO: get proper new line stuff to work
             }
-            output.Append("\n");
             return output;
         }
 
@@ -853,13 +916,99 @@ namespace ImageProcessor
                 //quick fix
                 bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
             }
-            else if (fileExtension != null) //try an image
+            else if (fileExtension != null && fileExtension.Contains(".json")) //weka
+            {
+                throw new NotImplementedException();
+                //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
+                bmpImage = LoadAsciiFile(fileLocation, true);
+                //quick fix
+                bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
+            }
+            else if (fileExtension != null && fileExtension.Contains(".json")) 
+            {
+                throw new NotImplementedException();
+                //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
+                bmpImage = LoadAsciiFile(fileLocation, true);
+                //quick fix
+                bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
+            }
+            else if (fileExtension != null && fileExtension.Contains(".csv"))
+            {
+                //TODO: fix this it rotates and reflects the image 90 deg anti-clockwise and about the y-axis
+                bmpImage = LoadCSVFile(fileLocation);
+                //quick fix
+                bmpImage.RotateFlip(RotateFlipType.Rotate270FlipY); //fixes reflection about y-axis
+            }
+            else if (fileExtension != null) //try an image //TODO add failure
             {
                 var image = Image.FromFile(fileLocation, true); //TODO add failure if fail to find 
                 bmpImage = new Bitmap(image);//TODO optimise
             }
 
             return bmpImage;
+        }
+
+        private Bitmap LoadCSVFile(string fileLocation)
+        {
+            Bitmap bmpImage;
+            String[] asciiFile;
+            String[] firstLine = null;
+            StringBuilder builder = new StringBuilder();
+
+            String fileFormat = null;
+            String colourType = null;
+            int height = 0;
+            int width = 0;
+
+            using (StreamReader sr = new StreamReader(fileLocation))
+            {
+                while (sr.Peek() >= 0)
+                {
+                    //ConvertedImage ascii rb dimensions(height/width): 100 100
+                    String str = sr.ReadLine();
+                    if (firstLine == null)
+                    {
+                        //this is the first line (5 items)
+                        firstLine = str.Split(' ');
+
+                        //fileFormat = firstLine[1]; //not needed
+                        colourType = firstLine[2];
+                        height = Convert.ToInt32(firstLine[4]);
+                        width = Convert.ToInt32(firstLine[5]);
+                    }
+                    else
+                    {
+                        builder.Append(str + "\n");
+                    }
+                }
+            }
+            String file = builder.ToString();
+            asciiFile = file.Split('\n');
+
+            bmpImage = ConvertFromCSVToBitmap(asciiFile, height, width, colourType); //TODO ascii check like weka
+
+            return bmpImage;
+        }
+
+        private Bitmap ConvertFromCSVToBitmap(string[] csvFile, int height, int width, string colourType)
+        {
+            //format rows = height
+            Bitmap image = new Bitmap(width, height);
+
+            bool foundData = false;
+            int lineCount = 0;
+
+            for (int i = 0; i < csvFile.Length - 1; i++)
+            {
+                //read data
+                if (!String.IsNullOrWhiteSpace(csvFile[i]))
+                {
+                    lineCount++;
+                    image = ProcessCSVLineToImage(image, csvFile[i], lineCount);
+                }
+            }
+
+            return image;
         }
 
         public Bitmap ScaleImage(Bitmap image, int height, int width)
