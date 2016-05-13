@@ -1,0 +1,10 @@
+LearningRate: 0.3 hiddenLayerSize: 25
+hiddenLayer2Size: 50 hiddenLayer3Size: 25
+Training 3 Hidden Layer MNIST Dataset: 
+
+Started: Fri May 13 2016 19:21:05 GMT+0200 (South Africa Standard Time)
+
+Synaptic Train
+
+iterations 1 error 7.115278691252323 rate 0.3
+iterations 2 error 7.238494326127107 rate 0.3

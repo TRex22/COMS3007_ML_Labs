@@ -14,6 +14,8 @@ var learningRate = process.argv[3];
 
 var hiddenLayerSize = process.argv[4];
 
+var error = .25;//.5
+
 console.log("LearningRate: "+learningRate+" hiddenLayerSize: "+hiddenLayerSize);
 
 if (process.argv.length == 6+1){
@@ -68,7 +70,7 @@ function synapticTrain(){
 	trainer.train(trainingSet, {
 	    rate: learningRate,//.3,
 	    iterations: 10,
-	    error: .5,
+	    error: error,
 	    shuffle: true,
 	    log: 1,
 	    cost: Trainer.cost.CROSS_ENTROPY
@@ -88,6 +90,9 @@ function synapticTrain(){
 		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
+
+	var endTime2 = new Date();
+	console.log("Ended: "+endTime2+"\n");
 	
 }
 
@@ -128,7 +133,7 @@ function synapticTrain2Layers(){
 	trainer.train(trainingSet, {
 	    rate: learningRate,//.3,
 	    iterations: 10,
-	    error: .5,
+	    error: error,
 	    shuffle: true,
 	    log: 1,
 	    cost: Trainer.cost.CROSS_ENTROPY
@@ -148,6 +153,9 @@ function synapticTrain2Layers(){
 		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
+
+	var endTime2 = new Date();
+	console.log("Ended: "+endTime2+"\n");
 	
 }
 
@@ -190,7 +198,7 @@ function synapticTrain3Layers(){
 	trainer.train(trainingSet, {
 	    rate: learningRate,//.3,
 	    iterations: 10,
-	    error: .5,
+	    error: error,
 	    shuffle: true,
 	    log: 1,
 	    cost: Trainer.cost.CROSS_ENTROPY
@@ -210,5 +218,7 @@ function synapticTrain3Layers(){
 		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
-	
+
+	var endTime2 = new Date();
+	console.log("Ended: "+endTime2+"\n");
 }
