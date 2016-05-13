@@ -1,6 +1,10 @@
 \documentclass[11pt]{article}
 
 \usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\graphicspath{ {images/} }
  
 \pagestyle{fancy}
 \fancyhf{}
@@ -49,77 +53,44 @@
 \end{titlepage}
 \begin{page}
 \section{Purpose}
-\\Find a suitable dataset on which you can apply various supervised learning algorithms.
-This can be either a classication problem or a regression problem.
-Apply various supervised learning algorithms to your dataset.
+The purpose of my assignment is to run several machine learning algorithms in order to correctly classify hand written digits as their corresponding ASCII equivalents, or at least predict within an acceptable order of magnitude. These sets of experiments will hopefully show that machine learning can be applied to the field of optical character recognition.
 
-My project involves image processing and its relation to machine learning. I went out to test different network methods, and find a network setup which works well with learning image filtering. The filter I chose to train these different methods with is specifically a filter, I created which reduces an image from RGB scale to a Black White scale where each pixel is reduced to a bw value based on its luminosity and its neighbours luminosity.
-
-I created an image processor program which has the ability to convert images between formats such as jpeg, png and json. This program is also used for pre-processing the data such as normalising it and applying filters to be used as the target dataset. This program can also generate randomly generated 'noisey' images and scale or crop the images to the desired dimensions.
+\section{Tools Used}
+I made used of the node.js framework for my coding and scripting of the various experiments. I used the Synaptic neural network library for node.js. This library was capable of handling constructing the given dimensions of a network, changing relevant values, randomising the data and calculating the error during training.
 
 \section{Dataset Used}
-\\A description of your dataset: what are the attributes, what are the targets, how many
-datapoints do you have, and some sample datapoints from the dataset. State what you are
-trying to predict with the data.\\
+I made use of the MNIST database. This is a large database of hand written digits which has been compiled by taking a combination of two databases of hand written digits compiled in the United States. The website for this database can be found here: \url{http://yann.lecun.com/exdb/mnist/} \\
 
-I have used data found from the Wikicommons public domain image repository. I have also created a set of random RGB images which are also going to be used to make sure that the networks do not learn regular features which may be present in the images chosen from Wikicommons. \\
+This database has a very large training set of 60 000 examples and a set of 10 000 test examples. All the images are normalised, and centred in the same fixed size of 28x28 pixels.
+I used the mnist library for node.js to help me load the database into Synaptic. It can be found here: https://github.com/cazala/mnist \\\\
 
-The images chosen from online are all photographs which have either been scanned in or taken with a digital imaging device such as a CCDU or digital camera. This is to make sure that the data has even spread of pixels which do not have the same kind regularity as digital images may contain. This regularity could bias any trained network which will then provide results which are not desireable.
+\includegraphics[scale=0.7]{1}\\
+An example of the data used (several sets of samples compiled together) \\
+Source: \url{https://github.com/cazala/mnist/}\\
 
-All the images are preprocessed to have the same square dimensions of 100 x 100 pixels, to get these dimensions the images are all cropped from the centre of the image. The target dataset is produced by applying the image filter to each input image.
+Using this library I was able to specify the number of training samples and testing samples I wanted. No two sets are the same using the functionality of this library. I specified 700 training examples and 20 testing examples. \\\\
 
-The images are then converted to a filetype which can be used by the machine learning library. This is done by 'vectorising' the image or turning the two dimensional array of pixels into a one dimensional array of pixel values. TODO: add here
+My neural networks all had 784 input nodes (which correspond per pixel to the input image samples) and 10 output nodes (which correspond to the digits 0-9) as my attributes of classification. My networks setup using Synaptic JS accept a 784 length array of values (floats) and outputs a 10 length array of values (floats). I run the test data on the network after training and round the output values to the nearest integer after the network. \\\\
 
-The aim of this project is to predict the change in pixels caused by the use of the bw filter and potentially improve on the filter. Optimise bw2 filter which is very slow?
+\includegraphics{2}\\
+This is an example of a randomly sampled data:\\
+Source: \url{http://ampcamp.berkeley.edu/6/exercises/} 
 
 \section{General Restrictions and Normalisation Applied}
-\\A description of how you structured your inputs/targets and normalised the data, and the
-split into training/validation/test data.\\
 
-All the images are square and have the dimensions of 100 x 100 pixels. The images are either randomly generated or are photographs which have been digitally scanned from the real world. The images have been preprocessed by using the bw filter in order to become the target dataset.
-
-Most of the training data will come from the images pull from the wikicommons repository. Validation and test data will have 10% real world images and the rest will come from randomly generated images. The rendomly generated images have better spread of pixel data and so are better for making sure bias in the network is kept to a minimum.
-
-The output of the network was in the same form as the input into the network. This allows the output to be reconstructed into an image by the same image processing program described earlier.
-
-Two strategies for data input was used. The first as described above was to input images into the network as seperate data values in the set. This used 100 x 100 images, for both the data inputs and targets. The inputs to the network each represented a pixel from an image. So for the data used 10000 input nodes and 10000 output nodes were used.
-
-The other strategy was to have an image as the input dataset and rather than looking at the entire image as the input each pixel and its respective RGB values were the inputs to the network. This strategy had 3 input nodes and 3 output nodes with many more hidden layers and nodes than the first strategy.
-
-Both strategies are compared below.
 
 \section{Algorithms Used}
-Neural Network With Perceptron Learning (Forward Propogation)\\
-NN with Back Propogation\\
-NN with RBF\\
+\emph Note: see results for the error returned on the test set.\\\\
+\textbf{Experiment 1:} Neural network with one hidden layer with 100 nodes and learning rate of 0.3\\\\
+\textbf{Experiment 2:} Neural network with two hidden layers with 50 nodes on each layer and a learning rate of 0.3\\\\
+\textbf{Experiment 3:} Neural network with three hidden layers with 25 nodes on each layer and a learning rate of 0.3\\\\
+\textbf{Experiment 4:} Neural network with three hidden layers with 50 nodes on each layer and a learning rate of 0.3\\\\
 
-Several methods were applied to this problem:
-0. Neural network with back propogation
-1. Multi-layer neural network
-2. Multi-layer neural network with back propogation
-3. RBF Neural Network
-
-Within these networks several variations on parameters were used. (see the next section)
-
-\section{Methods Applied to The Problem}
-A list of supervised learning algorithms you applied to the data, together with the details
-of each implementation and the error on the test set.\\\\
-For example:\\
-Neural network with one hidden layer with 50 nodes,  = 0:3, error = ...\\
-Neural network with two hidden layers with 20 nodes in rst layer and 15 in second,  = 0:2,
-error = ...\\
-RBF network with 25 RBF nodes and random centres,  = 0:25, error = ...\\
-RBF network with 40 RBF nodes and centres obtained by k-means,  = 0:25, error = ...\\
-etc.\\
-
-\\
 
 
 \section{Results}
 A brief discussion of your results from the various algorithms. E.g., what worked best/worst
 and why you think this is so.\\
-
-Images of results before and after\\
 
 \section{Conclusion}
 
