@@ -1,7 +1,6 @@
 'use strict'
 var ml = require('machine_learning');
 var brain = require("brain");
-var NeuralN = require('neuraln');
 
 var parser = require('data4node').babelFish.csv;
 var hactar = require('hactarjs');
@@ -13,12 +12,20 @@ var filenameInput = process.argv[2];
 var filenameTarget = process.argv[3];
 var filenameNewData = process.argv[4];
 var output = process.argv[5];
+//var hiddenLayers = [];
+
+//console.log(JSON.stringify(hiddenLayers));
 
 //main script here
 
 main(filenameInput, filenameTarget, filenameNewData, output, "");
 
-function main(filenameInput, filenameTarget, filenameNewData, output, method){
+var exposed = {
+  main: main
+};
+module.exports = exposed;
+
+function main(filenameInput, filenameTarget, filenameNewData, output, method, hiddenLayers){
 	var noNodes = 0;
 	var inputData;
 	fs.readFile(filenameInput, 'utf8', function(err, data) {
@@ -36,19 +43,79 @@ function main(filenameInput, filenameTarget, filenameNewData, output, method){
 				newData = parseCSVImage(data);
 				noNodes = inputData.pixels[0].length;
 				
-				var imageSet = {"inputData": inputData, "targetData": targetData, "newData": newData};
+				//var imageSet = {"inputData": inputData, "targetData": targetData, "newData": newData};
 
-				run_ml_network_whole_image_set(imageSet, noNodes, output);
+				//run_ml_network_whole_image_set(imageSet, noNodes, output, hiddenLayers);
 				//ml_km_Train(imageSet.inputData.pixels);
 				//ml_lr_Train(imageSet, noNodes, output);
 				//brainTrain(imageSet, noNodes, output);
 				//nuralnTrain(imageSet, noNodes, output)
 				
-				//synapticTrain(imageSet, noNodes, output);
+				var training = {"input": inputData.pixels, "output": targetData.pixels};
+				var test = {"input": newData.pixels, "output": newData.pixels};
+				var imageSet = {"training": training, "test": test};
+				synapticTrain(imageSet, noNodes, output);
 				//console.log(JSON.stringify(newData));
 			});
 		});	
 	});	
+}
+
+//trianing synaptic
+function synapticTrain(imageSet, noNodes, output){
+	var beginTime = new Date();
+	console.log("Started: "+beginTime+"\n");
+
+	/*var synaptic = require('synaptic');
+	this.network = new synaptic.Architect.Perceptron(40, 25, 3);*/
+	console.log("Synaptic Train\n");
+	var synaptic = require('synaptic');
+
+	var Layer = synaptic.Layer;
+	var Network = synaptic.Network;
+	var Trainer = synaptic.Trainer;
+
+	//var mnist = require('mnist'); 
+	//var set = mnist.set(700, 20);
+
+	var trainingSet = imageSet.training;//set.training;
+	var testSet = imageSet.test;//set.test;
+
+	var inputLayer = new Layer(10000);
+	var hiddenLayer = new Layer(100);
+	var outputLayer = new Layer(10000);
+
+	inputLayer.project(hiddenLayer);
+	hiddenLayer.project(outputLayer);
+
+	var myNetwork = new Network({
+	    input: inputLayer,
+	    hidden: [hiddenLayer],
+	    output: outputLayer
+	});
+
+	var trainer = new Trainer(myNetwork);
+	trainer.train(trainingSet, {
+	    rate: .3,
+	    iterations: 2,
+	    error: .5,
+	    shuffle: true,
+	    log: 1,
+	    cost: Trainer.cost.CROSS_ENTROPY
+	});
+
+	var endTime = new Date();
+	console.log("Ended: "+endTime+"\n");
+
+	/*console.log(myNetwork.activate(testSet[0].input));
+	console.log(testSet[0].output+"\n");
+
+	var result = classifier.predict(x)
+
+	var outputStr = imageSet.newData.topLine+" beginTime: "+ beginTime+" endTime: "+endTime+"\n"+result;
+	hactar.saveFile(outputStr, output);
+	 
+	console.log("Result : "+result+"\n");*/
 }
 
 function ml_lr_Train(imageSet, noNodes, output){
@@ -87,20 +154,20 @@ function ml_lr_Train(imageSet, noNodes, output){
 	console.log("Result : "+result+"\n");
 }
 
-function run_ml_network_whole_image_set(imageSet, noNodes, output){
+function run_ml_network_whole_image_set(imageSet, noNodes, output, hiddenLayers){
 	var beginTime = new Date();
 	console.log("Started: "+beginTime+"\n");
 
 	var x = [imageSet.inputData.pixels[0], imageSet.inputData.pixels[1], imageSet.inputData.pixels[2], imageSet.inputData.pixels[3], imageSet.inputData.pixels[4]];
 	var y = [imageSet.targetData.pixels[0], imageSet.targetData.pixels[1], imageSet.targetData.pixels[2], imageSet.targetData.pixels[3], imageSet.inputData.pixels[4]];
 	//console.log(x[0].length +" y: "+y[0].length);
-	 
+	 console.log(hiddenLayers);
 	var mlp = new ml.MLP({
 	    'input' : x,
 	    'label' : y,
 	    'n_ins' : noNodes,
 	    'n_outs' : noNodes,
-	    'hidden_layer_sizes' : [4,4,5]
+	    'hidden_layer_sizes' : hiddenLayers//[100]
 	});
 	 
 	mlp.set('log level',1); // 0 : nothing, 1 : info, 2 : warning.
@@ -113,7 +180,7 @@ function run_ml_network_whole_image_set(imageSet, noNodes, output){
 	a = imageSet.newData.pixels;
 	
 	var result = mlp.predict(a);
-	
+	console.log("Trained!! \n");
 	var endTime = new Date();
 	console.log("Ended: "+endTime+"\n");
 
@@ -149,51 +216,6 @@ function ml_km_Train(data){
 	 
 	console.log("clusters : ", result.clusters);
 	console.log("means : ", result.means+"\n");
-}
-
-//trianing synaptic
-function synapticTrain(imageSet, noNodes, output){
-	/*var synaptic = require('synaptic');
-	this.network = new synaptic.Architect.Perceptron(40, 25, 3);*/
-	console.log("Synaptic Train\n");
-
-	var synaptic = require('synaptic');
-
-	var Layer = synaptic.Layer;
-	var Network = synaptic.Network;
-	var Trainer = synaptic.Trainer;
-
-	//var mnist = require('mnist'); 
-	//var set = mnist.set(700, 20);
-
-	var trainingSet = imageSet.inputData.pixels;//set.training;
-	var testSet = imageSet.targetData.pixels;//set.test;
-
-	var inputLayer = new Layer(784);
-	var hiddenLayer = new Layer(100);
-	var outputLayer = new Layer(10);
-
-	inputLayer.project(hiddenLayer);
-	hiddenLayer.project(outputLayer);
-
-	var myNetwork = new Network({
-	    input: inputLayer,
-	    hidden: [hiddenLayer],
-	    output: outputLayer
-	});
-
-	var trainer = new Trainer(myNetwork);
-	trainer.train(trainingSet, {
-	    rate: .3,
-	    iterations: 10,
-	    error: .5,
-	    shuffle: true,
-	    log: 1,
-	    cost: Trainer.cost.CROSS_ENTROPY
-	});
-
-	console.log(myNetwork.activate(testSet[0].input));
-	console.log(testSet[0].output+"\n");
 }
 
 function nuralnTrain(imageSet, noNodes, output){
