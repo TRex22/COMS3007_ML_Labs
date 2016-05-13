@@ -12,7 +12,11 @@ function mainScript(){
 	mlTrain();
 	nodeMindTrain();
 	convnetJSTrain();*/
-	synapticTrain(); //very slow compared to the others
+	
+	//synapticTrain(); //very slow compared to the others
+
+	//ml_km_Train();
+	ml_lr_Train();
 }
 
 //Training brain js
@@ -52,26 +56,21 @@ function mlTrain(){
 
 function ml_km_Train(){
 	var ml = require('machine_learning');
- 
-	var data = [[1,0,1,0,1,1,1,0,0,0,0,0,1,0],
-            [1,1,1,1,1,1,1,0,0,0,0,0,1,0],
-            [1,1,1,0,1,1,1,0,1,0,0,0,1,0],
-            [1,0,1,1,1,1,1,1,0,0,0,0,1,0],
-            [1,1,1,1,1,1,1,0,0,0,0,0,1,1],
-            [0,0,1,0,0,1,0,0,1,0,1,1,1,0],
-            [0,0,0,0,0,0,1,1,1,0,1,1,1,0],
-            [0,0,0,0,0,1,1,1,0,1,0,1,1,0],
-            [0,0,1,0,1,0,1,1,1,1,0,1,1,1],
-            [0,0,0,0,0,0,1,1,1,1,1,1,1,1],
-            [1,0,1,0,0,1,1,1,1,1,0,0,1,0]
-           ];
+ 	var mnist = require('mnist'); 
+
+	var set = mnist.set(700, 20);
+
+	var trainingSet = set.training;
+	var testSet = set.test;
+
+   	var data = testSet[0].input;
  
 	var result = ml.kmeans.cluster({
 	    data : data,
 	    k : 4,
 	    epochs: 100,
 	 
-	    distance : {type : "pearson"}
+	    distance : {type : "euclidean"}
 	    // default : {type : 'euclidean'}
 	    // {type : 'pearson'}
 	    // Or you can use your own distance function
@@ -79,12 +78,19 @@ function ml_km_Train(){
 	});
 	 
 	console.log("clusters : ", result.clusters);
-	console.log("means : ", result.means+"\n");
+	console.log("means : ", JSON.stringify(result)+"\n");
 }
 
 function ml_lr_Train(){
 	var ml = require('machine_learning');
-	var x = [[1,1,1,0,0,0],
+	var mnist = require('mnist'); 
+
+	var set = mnist.set(700, 20);
+
+	var trainingSet = set.training;
+	var testSet = set.test;
+
+	/*var x = [[1,1,1,0,0,0],
 	         [1,0,1,0,0,0],
 	         [1,1,1,0,0,0],
 	         [0,0,1,1,1,0],
@@ -95,29 +101,44 @@ function ml_lr_Train(){
 	         [1, 0],
 	         [0, 1],
 	         [0, 1],
-	         [0, 1]];
+	         [0, 1]];*/
+ 	var x = [];
+	var y = [];
+	for (var i = 0; i<700; i++){
+		x.push(trainingSet[i].input);
+		y.push(trainingSet[i].output);
+	}
+	//console.log(JSON.stringify(trainingSet.ouput))
 	 
 	var classifier = new ml.LogisticRegression({
 	    'input' : x,
 	    'label' : y,
-	    'n_in' : 6,
-	    'n_out' : 2
+	    'n_in' : 784,
+	    'n_out' : 10
 	});
 	 
 	classifier.set('log level',1);
 	 
-	var training_epochs = 800, lr = 0.01;
+	var training_epochs = 800, lr = 0.2;
 	 
 	classifier.train({
 	    'lr' : lr,
 	    'epochs' : training_epochs
 	});
 	 
-	x = [[1, 1, 0, 0, 0, 0],
-	     [0, 0, 0, 1, 1, 0],
-	     [1, 1, 1, 1, 1, 0]];
-	 
-	console.log("Result : "+classifier.predict(x)+"\n");
+	x = [testSet[0].input];
+	console.log(testSet[0].input.length);
+	console.log("Result using testSet["+0+"]: "+testSet[0].output+"\n");
+	var result = ""+classifier.predict(x);
+	console.log("Result : "+result+"\n");
+
+	var out = result.split(",");
+
+	var sum = 0;
+	for(var i =0; i<out.length;i++){
+		sum += Math.pow(testSet[0].output[i] - out[i], 2);
+	}
+	console.log("Sum Squares Error: "+sum+" div by 2: "+sum/2);
 }
 
 function ml_mlp_Train(){
