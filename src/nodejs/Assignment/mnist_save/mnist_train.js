@@ -14,11 +14,11 @@ var learningRate = process.argv[3];
 
 var hiddenLayerSize = process.argv[4];
 
-if (process.argv.length == 6){
+if (process.argv.length == 6+1){
 	var hiddenLayer2Size = process.argv[5];
 	synapticTrain2Layers();
 }
-if (process.argv.length == 7){
+if (process.argv.length == 7+1){
 	var hiddenLayer2Size = process.argv[5];
 	var hiddenLayer3Size = process.argv[6];
 	synapticTrain3Layers();
@@ -81,7 +81,7 @@ function synapticTrain(){
 	//console.log(result+"\n");
 
 	for (var i=0; i<testSet.length; i++){
-		console.log("Result using testSet["+i+"]: "testSet[i].output+"\n");
+		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
 	
@@ -141,7 +141,7 @@ function synapticTrain2Layers(){
 	//console.log(result+"\n");
 
 	for (var i=0; i<testSet.length; i++){
-		console.log("Result using testSet["+i+"]: "testSet[i].output+"\n");
+		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
 	
@@ -203,7 +203,7 @@ function synapticTrain3Layers(){
 	//console.log(result+"\n");
 
 	for (var i=0; i<testSet.length; i++){
-		console.log("Result using testSet["+i+"]: "testSet[i].output+"\n");
+		console.log("Result using testSet["+i+"]: "+testSet[i].output+"\n");
 		console.log(myNetwork.activate(testSet[i].input));
 	}
 	
