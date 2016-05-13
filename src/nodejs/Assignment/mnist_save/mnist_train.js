@@ -14,13 +14,17 @@ var learningRate = process.argv[3];
 
 var hiddenLayerSize = process.argv[4];
 
+console.log("LearningRate: "+learningRate+" hiddenLayerSize: "+hiddenLayerSize);
+
 if (process.argv.length == 6+1){
 	var hiddenLayer2Size = process.argv[5];
+	console.log("hiddenLayer2Size: "+hiddenLayer2Size);
 	synapticTrain2Layers();
 }
 if (process.argv.length == 7+1){
 	var hiddenLayer2Size = process.argv[5];
 	var hiddenLayer3Size = process.argv[6];
+	console.log("hiddenLayer2Size: "+hiddenLayer2Size+" hiddenLayer3Size: "+hiddenLayer3Size);
 	synapticTrain3Layers();
 }
 else
